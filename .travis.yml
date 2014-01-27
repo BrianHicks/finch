@@ -1,0 +1,11 @@
+language: go
+go:
+  - 1.2
+  - release
+  - tip
+
+install:
+  - go get -d -t -v ./...
+
+script:
+  - go test -v ./...
