@@ -36,7 +36,7 @@ func NewTask(description string, added time.Time) *Task {
 	return t
 }
 
-func TaskFromSerialized(szd []byte) (*Task, error) {
+func DeserializeTask(szd []byte) (*Task, error) {
 	t := new(Task)
 	err := msgpack.Unmarshal(szd, t)
 

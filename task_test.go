@@ -16,7 +16,7 @@ func TestSerializationRoundtrip(t *testing.T) {
 	serialized, err := origTask.Serialize()
 	assert.Nil(t, err)
 
-	newTask, err := TaskFromSerialized(serialized)
+	newTask, err := DeserializeTask(serialized)
 	assert.Nil(t, err)
 
 	assert.Equal(t, newTask, origTask)
