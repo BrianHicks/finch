@@ -55,6 +55,20 @@ func (suite *TaskDBSuite) TestTasksIndexing() {
 	assert.Equal(suite.T(), t, task)
 }
 
+func (suite *TaskDBSuite) TestPendingIndexing() {
+	nope := NewTask("test", time.Now())
+	nope.Pending = false
+
+	yep := NewTask("test", time.Now())
+	yep.Pending = true
+
+	suite.db.PutTasks(nope, yep)
+
+	pending, err := suite.db.TasksForIndex(PendingIndex)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), []*Task{yep}, pending)
+}
+
 func TestTaskDBSuite(t *testing.T) {
 	suite.Run(t, new(TaskDBSuite))
 }

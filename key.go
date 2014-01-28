@@ -9,9 +9,9 @@ import "errors"
 var ErrDeserializeKey error = errors.New("not enough parts to split")
 
 const (
-	TasksIndex     string = "tasks"
-	SelectedIndex  string = "selected"
-	AvailableIndex string = "available"
+	PendingIndex  string = "pending"
+	SelectedIndex string = "selected"
+	TasksIndex    string = "tasks"
 )
 
 type Key struct {
