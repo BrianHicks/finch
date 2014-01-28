@@ -1,6 +1,9 @@
 package finch
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 import "errors"
 
 var ErrDeserializeKey error = errors.New("not enough parts to split")
@@ -15,6 +18,14 @@ type Key struct {
 	Index     string
 	Timestamp string
 	Hash      string
+}
+
+func KeyForTask(idx string, t *Task) *Key {
+	return &Key{
+		idx,
+		t.Added.Format(time.RFC3339),
+		t.Id,
+	}
 }
 
 func DeserializeKey(szd []byte) (*Key, error) {
