@@ -64,7 +64,7 @@ func (suite *TaskDBSuite) TestPendingIndexing() {
 
 	suite.db.PutTasks(nope, yep)
 
-	pending, err := suite.db.TasksForIndex(PendingIndex)
+	pending, err := suite.db.GetPendingTasks()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), []*Task{yep}, pending)
 }
@@ -78,7 +78,7 @@ func (suite *TaskDBSuite) TestSelectedIndexing() {
 
 	suite.db.PutTasks(nope, yep)
 
-	selected, err := suite.db.TasksForIndex(SelectedIndex)
+	selected, err := suite.db.GetSelectedTasks()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), []*Task{yep}, selected)
 }

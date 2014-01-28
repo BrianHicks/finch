@@ -157,8 +157,16 @@ func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
 	return tdb.getTaskRaw(key.Serialize())
 }
 
+func (tdb *TaskDB) GetPendingTasks() ([]*Task, error) {
+	return tdb.TasksForIndex(PendingIndex)
+}
+
+func (tdb *TaskDB) GetSelectedTasks() ([]*Task, error) {
+	return tdb.TasksForIndex(SelectedIndex)
+}
+
 func (tdb *TaskDB) GetNextSelected() (*Task, error) {
-	tasks, err := tdb.TasksForIndex(SelectedIndex)
+	tasks, err := tdb.GetSelectedTasks()
 	if err != nil {
 		return new(Task), err
 	}
