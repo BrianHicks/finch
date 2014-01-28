@@ -57,10 +57,10 @@ func (suite *TaskDBSuite) TestTasksIndexing() {
 
 func (suite *TaskDBSuite) TestPendingIndexing() {
 	nope := NewTask("test", time.Now())
-	nope.Pending = false
+	nope.Attrs[TagPending] = false
 
 	yep := NewTask("test", time.Now())
-	yep.Pending = true
+	nope.Attrs[TagPending] = true
 
 	suite.db.PutTasks(nope, yep)
 
@@ -71,10 +71,10 @@ func (suite *TaskDBSuite) TestPendingIndexing() {
 
 func (suite *TaskDBSuite) TestSelectedIndexing() {
 	nope := NewTask("test", time.Now())
-	nope.Selected = false
+	nope.Attrs[TagSelected] = false
 
 	yep := NewTask("selected", time.Now())
-	yep.Selected = true
+	yep.Attrs[TagSelected] = true
 
 	suite.db.PutTasks(nope, yep)
 
@@ -89,7 +89,7 @@ func (suite *TaskDBSuite) TestGetNextSelected() {
 	assert.Equal(suite.T(), ErrNoNextTask, err)
 
 	t := NewTask("test", time.Now())
-	t.Selected = true
+	t.Attrs[TagSelected] = true
 
 	suite.db.PutTasks(t)
 

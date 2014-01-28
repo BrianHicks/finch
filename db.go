@@ -55,6 +55,28 @@ func (tdb *TaskDB) Close() {
 	tdb.db = nil
 }
 
+// batchWriteTask makes sure that a task is completely written to the database
+func (tdb *TaskDB) batchWriteTask(batch *leveldb.Batch, task *Task) error {
+	szd, err := task.Serialize()
+	if err != nil {
+		return err
+	}
+	key := task.Key(TasksIndex)
+
+	batch.Put(key.Serialize(), szd)
+
+	for tag, presence := range task.Attrs {
+		key.Index = tag
+		if presence {
+			batch.Put(key.Serialize(), []byte{})
+		} else {
+			batch.Delete(key.Serialize())
+		}
+	}
+
+	return nil
+}
+
 // PutTasks inserts tasks into the database and overwrites those which
 // already exist
 func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
@@ -62,28 +84,9 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 
 	for i := 0; i < len(tasks); i++ {
 		task := tasks[i]
-
-		szd, err := task.Serialize()
+		err := tdb.batchWriteTask(batch, task)
 		if err != nil {
 			return err
-		}
-		key := task.Key(TasksIndex)
-
-		// write the Task to the main storage
-		batch.Put(key.Serialize(), szd)
-
-		key.Index = PendingIndex
-		if task.Pending {
-			batch.Put(key.Serialize(), []byte{})
-		} else {
-			batch.Delete(key.Serialize())
-		}
-
-		key.Index = SelectedIndex
-		if task.Selected {
-			batch.Put(key.Serialize(), []byte{})
-		} else {
-			batch.Delete(key.Serialize())
 		}
 	}
 

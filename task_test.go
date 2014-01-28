@@ -10,8 +10,8 @@ import (
 func TestSerializationRoundtrip(t *testing.T) {
 	origTask := new(Task)
 	origTask.Description = "test!"
-	origTask.Pending = true
 	origTask.Added = time.Now()
+	origTask.Attrs = map[string]bool{}
 
 	serialized, err := origTask.Serialize()
 	assert.Nil(t, err)
@@ -28,8 +28,8 @@ func TestNewTask(t *testing.T) {
 
 	assert.Equal(t, task.Description, "test!")
 	assert.Equal(t, task.Added, now)
-	assert.False(t, task.Selected)
-	assert.True(t, task.Pending)
+	assert.False(t, task.Attrs[TagSelected])
+	assert.True(t, task.Attrs[TagPending])
 }
 
 func TestKey(t *testing.T) {

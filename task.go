@@ -10,13 +10,17 @@ import (
 	"time"
 )
 
+var (
+	TagPending  = "pending"
+	TagSelected = "selected"
+)
+
 // Task is the basic structure for tasks in the database
 type Task struct {
 	ID          string
 	Description string
 	Added       time.Time
-	Selected    bool
-	Pending     bool
+	Attrs       map[string]bool
 }
 
 // NewTask returns an instantiated Task. In particular, it hashes the
@@ -24,9 +28,11 @@ type Task struct {
 func NewTask(description string, added time.Time) *Task {
 	t := new(Task)
 	t.Description = description
+	t.Attrs = map[string]bool{
+		TagPending:  true,
+		TagSelected: false,
+	}
 	t.Added = added
-	t.Selected = false
-	t.Pending = true
 
 	hash := sha1.New()
 	io.WriteString(hash, description)
