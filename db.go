@@ -2,6 +2,7 @@ package finch
 
 import (
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/filter"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/storage"
@@ -17,7 +18,9 @@ func NewTaskDB(store storage.Storage) (*TaskDB, error) {
 	tdb := new(TaskDB)
 
 	// Open the Database with the provided Storage
-	options := &opt.Options{}
+	options := &opt.Options{
+		Filter: filter.NewBloomFilter(15),
+	}
 	db, err := leveldb.Open(store, options)
 	if err != nil {
 		return tdb, err
