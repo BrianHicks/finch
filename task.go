@@ -27,11 +27,7 @@ func NewTask(description string, added time.Time) *Task {
 
 	hash := sha1.New()
 	io.WriteString(hash, description)
-	descPart := base64.StdEncoding.EncodeToString(hash.Sum(nil))
-
-	timePart := added.Format(time.RFC3339)
-
-	t.Id = timePart + "/" + descPart
+	t.Id = base64.StdEncoding.EncodeToString(hash.Sum(nil))
 
 	return t
 }
