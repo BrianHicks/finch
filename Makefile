@@ -2,11 +2,14 @@
 
 all: finch
 
-test: deps
+test:
 	godep go test -v ./...
 
+lint:
+	golint *.go
+
 deps:
-	go get github.com/kr/godep
+	go get -v github.com/kr/godep github.com/golang/lint/golint
 	godep restore
 
 clean:
