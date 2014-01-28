@@ -3,13 +3,14 @@
 all: finch
 
 test: deps
-	go test -v ./...
+	godep go test -v ./...
 
 deps:
-	go get -d -t -v ./...
+	go get github.com/kr/godep
+	godep restore
 
 clean:
 	git clean -fx
 
 finch: clean deps test
-	go build -o bin/finch ./cli
+	godep go build -o finch ./cli
