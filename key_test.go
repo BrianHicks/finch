@@ -33,11 +33,11 @@ func TestKeyDeserialization(t *testing.T) {
 }
 
 func TestKeyForTask(t *testing.T) {
-	task := Task{Added: time.Now(), Id: "test"}
+	task := Task{Added: time.Now(), ID: "test"}
 
 	key := KeyForTask("idx", &task)
 
 	assert.Equal(t, "idx", key.Index)
 	assert.Equal(t, task.Added.Format(time.RFC3339), key.Timestamp)
-	assert.Equal(t, task.Id, key.Id)
+	assert.Equal(t, task.ID, key.ID)
 }

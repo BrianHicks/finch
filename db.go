@@ -12,15 +12,18 @@ import (
 )
 
 var (
+	// ErrNoNextTask is returned when there is not a next selected task
 	ErrNoNextTask = errors.New("no next task")
 )
 
+// TaskDB wraps a LevelDB instance and sets sane defaults for Finch's usage.
 type TaskDB struct {
 	db *leveldb.DB
 	wo *opt.WriteOptions
 	ro *opt.ReadOptions
 }
 
+// NewTaskDB takes a storage and returns TaskDB instance
 func NewTaskDB(store storage.Storage) (*TaskDB, error) {
 	tdb := new(TaskDB)
 
@@ -45,6 +48,8 @@ func NewTaskDB(store storage.Storage) (*TaskDB, error) {
 	return tdb, nil
 }
 
+// Close should be called on a TaskDB to end it's lifecycle. The DB should not
+// be used after this is called.
 func (tdb *TaskDB) Close() {
 	tdb.db.Close()
 	tdb.db = nil
@@ -121,6 +126,8 @@ func (tdb *TaskDB) IterateOver(idx string, cb func(iterator.Iterator) error) err
 	return nil
 }
 
+// TasksForIndex returns a list of tasks that match an arbitrary index
+// (as string)
 func (tdb *TaskDB) TasksForIndex(idx string) ([]*Task, error) {
 	tasks := []*Task{}
 	err := tdb.IterateOver(idx, func(iter iterator.Iterator) error {
@@ -143,6 +150,7 @@ func (tdb *TaskDB) TasksForIndex(idx string) ([]*Task, error) {
 	return tasks, err
 }
 
+// getTaskRaw gets a task from a byteslice
 func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
 	szd, err := tdb.db.Get(key, tdb.ro)
 	if err != nil {
@@ -153,18 +161,32 @@ func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
 	return task, err
 }
 
+// GetTask gets a single task by Key
 func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
 	return tdb.getTaskRaw(key.Serialize())
 }
 
+// GetPendingTasks returns a list of pending tasks
 func (tdb *TaskDB) GetPendingTasks() ([]*Task, error) {
 	return tdb.TasksForIndex(PendingIndex)
 }
 
+// GetSelectedTasks returns a list of currently selected tasks in
+// newest-to-oldest order
 func (tdb *TaskDB) GetSelectedTasks() ([]*Task, error) {
-	return tdb.TasksForIndex(SelectedIndex)
+	tasks, err := tdb.TasksForIndex(SelectedIndex)
+	if err != nil {
+		return tasks, err
+	}
+
+	reversed := []*Task{}
+	for i := len(tasks) - 1; i >= 0; i-- {
+		reversed = append(reversed, tasks[i])
+	}
+	return reversed, nil
 }
 
+// GetNextSelected returns the next (most recent) selected Task
 func (tdb *TaskDB) GetNextSelected() (*Task, error) {
 	tasks, err := tdb.GetSelectedTasks()
 	if err != nil {
@@ -174,5 +196,5 @@ func (tdb *TaskDB) GetNextSelected() (*Task, error) {
 		return new(Task), ErrNoNextTask
 	}
 
-	return tasks[len(tasks)-1], nil
+	return tasks[0], nil
 }
