@@ -13,7 +13,7 @@ deps:
 	godep restore
 
 clean:
-	git clean -fx
+	git clean -fX
 
 finch: clean deps test
 	godep go build -o finch ./cli
