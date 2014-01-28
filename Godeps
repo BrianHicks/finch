@@ -6,6 +6,10 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "code.google.com/p/go-commander",
+			"Rev": "df033a4b379cd723ef7408b881c1e092cd943831"
+		},
+		{
 			"ImportPath": "code.google.com/p/snappy-go/snappy",
 			"Comment": "null-15",
 			"Rev": "12e4b4183793ac4b061921e7980845e750679fd0"
