@@ -69,7 +69,7 @@ func (suite *TaskDBSuite) TestPendingIndexing() {
 	assert.Equal(suite.T(), []*Task{yep}, pending)
 }
 
-func (suite *TaskDBSuite) TestSelecteddIndexing() {
+func (suite *TaskDBSuite) TestSelectedIndexing() {
 	nope := NewTask("test", time.Now())
 	nope.Selected = false
 
@@ -81,6 +81,21 @@ func (suite *TaskDBSuite) TestSelecteddIndexing() {
 	selected, err := suite.db.TasksForIndex(SelectedIndex)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), []*Task{yep}, selected)
+}
+
+func (suite *TaskDBSuite) TestGetNextSelected() {
+	// try it empty first
+	_, err := suite.db.GetNextSelected()
+	assert.Equal(suite.T(), ErrNoNextTask, err)
+
+	t := NewTask("test", time.Now())
+	t.Selected = true
+
+	suite.db.PutTasks(t)
+
+	next, err := suite.db.GetNextSelected()
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), t, next)
 }
 
 func TestTaskDBSuite(t *testing.T) {

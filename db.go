@@ -2,12 +2,17 @@ package finch
 
 import (
 	"bytes"
+	"errors"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/filter"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/storage"
+)
+
+var (
+	ErrNoNextTask = errors.New("no next task")
 )
 
 type TaskDB struct {
@@ -150,4 +155,17 @@ func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
 
 func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
 	return tdb.getTaskRaw(key.Serialize())
+}
+
+func (tdb *TaskDB) GetNextSelected() (*Task, error) {
+	tasks, err := tdb.TasksForIndex(SelectedIndex)
+	if err != nil {
+		return new(Task), err
+	}
+	if len(tasks) == 0 {
+		return new(Task), ErrNoNextTask
+	}
+
+	tasks = reverseTaskSlice(tasks)
+	return tasks[0], nil
 }
