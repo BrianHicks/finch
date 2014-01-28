@@ -5,7 +5,7 @@ go:
   - tip
 
 before_install:
-  - apt-get --assume-yes install libleveldb-dev
+  - sudo apt-get --assume-yes install libleveldb-dev
 
 install:
   - go get -d -t -v ./...
