@@ -133,12 +133,16 @@ func (tdb *TaskDB) TasksForIndex(idx string) ([]*Task, error) {
 	return tasks, err
 }
 
-func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
-	szd, err := tdb.db.Get(key.Serialize(), tdb.ro)
+func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
+	szd, err := tdb.db.Get(key, tdb.ro)
 	if err != nil {
 		return new(Task), err
 	}
 
 	task, err := DeserializeTask(szd)
 	return task, err
+}
+
+func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
+	return tdb.getTaskRaw(key.Serialize())
 }
