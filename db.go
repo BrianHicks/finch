@@ -1,6 +1,8 @@
 package finch
 
 import (
+	"bytes"
+
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/filter"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
@@ -86,22 +88,19 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 // each iteration, cb will be called with the current value of the Iterator,
 // and if cb returns a non-nil error that will bubble up to return from this
 // function. Errors from the iterator will also be returned.
-func (tdb *TaskDB) IterateOver(idx string, cb func(*Key, *iterator.Iterator) error) error {
+func (tdb *TaskDB) IterateOver(idx string, cb func(iterator.Iterator) error) error {
+	prefix := []byte(idx)
+
 	iter := tdb.db.NewIterator(tdb.ro)
-	iter.Seek([]byte(idx))
+	iter.Seek(prefix)
 	defer iter.Release()
 
 	for {
-		key, err := DeserializeKey(iter.Key())
-		if err != nil {
-			return err
-		}
-		if key.Index != idx {
+		if !bytes.HasPrefix(iter.Key(), prefix) {
 			break
 		}
 
-		err = cb(key, &iter)
-		if err != nil {
+		if err := cb(iter); err != nil {
 			return err
 		}
 
@@ -119,8 +118,14 @@ func (tdb *TaskDB) IterateOver(idx string, cb func(*Key, *iterator.Iterator) err
 
 func (tdb *TaskDB) TasksForIndex(idx string) ([]*Task, error) {
 	tasks := []*Task{}
-	err := tdb.IterateOver(idx, func(key *Key, iter *iterator.Iterator) error {
+	err := tdb.IterateOver(idx, func(iter iterator.Iterator) error {
+		key, err := DeserializeKey(iter.Key())
+		if err != nil {
+			return err
+		}
+
 		key.Index = TasksIndex
+
 		task, err := tdb.GetTask(key)
 		if err != nil {
 			return err
