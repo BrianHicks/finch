@@ -166,6 +166,5 @@ func (tdb *TaskDB) GetNextSelected() (*Task, error) {
 		return new(Task), ErrNoNextTask
 	}
 
-	tasks = reverseTaskSlice(tasks)
-	return tasks[0], nil
+	return tasks[len(tasks)-1], nil
 }
