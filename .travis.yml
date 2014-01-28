@@ -4,9 +4,6 @@ go:
   - release
   - tip
 
-before_install:
-  - sudo apt-get --assume-yes install libleveldb-dev
-
 install:
   - go get -d -t -v ./...
 

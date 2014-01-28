@@ -1,30 +1,35 @@
 package finch
 
-import "github.com/jmhodges/levigo"
+import (
+	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/opt"
+	"github.com/syndtr/goleveldb/leveldb/storage"
+)
 
 type TaskDB struct {
-	db *levigo.DB
-	wo *levigo.WriteOptions
-	ro *levigo.ReadOptions
+	db *leveldb.DB
+	wo *opt.WriteOptions
+	ro *opt.ReadOptions
 }
 
-func NewTaskDB(path string) (*TaskDB, error) {
+func NewTaskDB(store storage.Storage) (*TaskDB, error) {
 	tdb := new(TaskDB)
 
-	opts := levigo.NewOptions()
-	opts.SetCache(levigo.NewLRUCache(3 << 30))
-	opts.SetCreateIfMissing(true)
-	db, err := levigo.Open(path, opts)
+	// Open the Database with the provided Storage
+	options := &opt.Options{}
+	db, err := leveldb.Open(store, options)
 	if err != nil {
 		return tdb, err
 	}
 	tdb.db = db
 
-	tdb.wo = levigo.NewWriteOptions()
-	tdb.wo.SetSync(true)
-
-	tdb.ro = levigo.NewReadOptions()
-	tdb.ro.SetFillCache(true)
+	// Set default read and write options
+	tdb.wo = &opt.WriteOptions{
+		Sync: true,
+	}
+	tdb.ro = &opt.ReadOptions{
+		DontFillCache: false,
+	}
 
 	return tdb, nil
 }
@@ -32,19 +37,12 @@ func NewTaskDB(path string) (*TaskDB, error) {
 func (tdb *TaskDB) Close() {
 	tdb.db.Close()
 	tdb.db = nil
-
-	tdb.wo.Close()
-	tdb.wo = nil
-
-	tdb.ro.Close()
-	tdb.ro = nil
 }
 
 // PutTasks inserts tasks into the database and overwrites those which
 // already exist
 func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
-	batch := levigo.NewWriteBatch()
-	defer batch.Close()
+	batch := new(leveldb.Batch)
 
 	for i := 0; i < len(tasks); i++ {
 		task := tasks[i]
@@ -59,7 +57,7 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 		batch.Put(key.Serialize(), szd)
 	}
 
-	if err := tdb.db.Write(tdb.wo, batch); err != nil {
+	if err := tdb.db.Write(batch, tdb.wo); err != nil {
 		return err
 	}
 
@@ -67,7 +65,7 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 }
 
 func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
-	szd, err := tdb.db.Get(tdb.ro, key.Serialize())
+	szd, err := tdb.db.Get(key.Serialize(), tdb.ro)
 	if err != nil {
 		return new(Task), err
 	}
