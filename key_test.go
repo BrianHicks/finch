@@ -39,5 +39,5 @@ func TestKeyForTask(t *testing.T) {
 
 	assert.Equal(t, "idx", key.Index)
 	assert.Equal(t, task.Added.Format(time.RFC3339), key.Timestamp)
-	assert.Equal(t, task.Id, key.Hash)
+	assert.Equal(t, task.Id, key.Id)
 }

@@ -17,7 +17,7 @@ const (
 type Key struct {
 	Index     string
 	Timestamp string
-	Hash      string
+	Id        string
 }
 
 func KeyForTask(idx string, t *Task) *Key {
@@ -37,11 +37,11 @@ func DeserializeKey(szd []byte) (*Key, error) {
 	}
 	k.Index = parts[0]
 	k.Timestamp = parts[1]
-	k.Hash = parts[2]
+	k.Id = parts[2]
 
 	return k, nil
 }
 
 func (k *Key) Serialize() []byte {
-	return []byte(k.Index + "/" + k.Timestamp + "/" + k.Hash)
+	return []byte(k.Index + "/" + k.Timestamp + "/" + k.Id)
 }
