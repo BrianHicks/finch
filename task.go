@@ -47,3 +47,7 @@ func (t *Task) Serialize() ([]byte, error) {
 	b, err := msgpack.Marshal(t)
 	return b, err
 }
+
+func (t *Task) Key(idx string) *Key {
+	return KeyForTask(idx, t)
+}

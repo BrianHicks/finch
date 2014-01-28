@@ -31,3 +31,9 @@ func TestNewTask(t *testing.T) {
 	assert.False(t, task.Selected)
 	assert.True(t, task.Pending)
 }
+
+func TestKey(t *testing.T) {
+	task := NewTask("test", time.Now())
+
+	assert.Equal(t, KeyForTask("idx", task), task.Key("idx"))
+}
