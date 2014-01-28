@@ -63,6 +63,13 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 		} else {
 			batch.Delete(key.Serialize())
 		}
+
+		key.Index = SelectedIndex
+		if task.Selected {
+			batch.Put(key.Serialize(), []byte{})
+		} else {
+			batch.Delete(key.Serialize())
+		}
 	}
 
 	if err := tdb.db.Write(batch, tdb.wo); err != nil {
