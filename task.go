@@ -10,8 +10,10 @@ import (
 	"time"
 )
 
-var (
-	TagPending  = "pending"
+const (
+	// TagPending is used to annotate tasks which haven't been completed yet
+	TagPending = "pending"
+	// TagSelected shows selection status - IE as part of a FV chain
 	TagSelected = "selected"
 )
 
