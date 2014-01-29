@@ -4,17 +4,16 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"testing"
-	"time"
 )
 
 func TestKeySerialization(t *testing.T) {
-	k := Key{"test", "2014", "abc"}
+	k := Key{"2014", "abc"}
 
-	assert.Equal(t, []byte("test/2014/abc"), k.Serialize())
+	assert.Equal(t, []byte("test/2014/abc"), k.Serialize("test"))
 }
 
 func TestKeyDeserialization(t *testing.T) {
-	k := Key{"test", "2014", "abc"}
+	k := Key{"2014", "abc"}
 
 	// test good
 	k2, err := DeserializeKey([]byte("test/2014/abc"))
@@ -29,15 +28,5 @@ func TestKeyDeserialization(t *testing.T) {
 	// test weird
 	k2, err = DeserializeKey([]byte("a/b/c/d"))
 	assert.Nil(t, err)
-	assert.Equal(t, &Key{"a", "b", "c/d"}, k2)
-}
-
-func TestKeyForTask(t *testing.T) {
-	task := Task{Added: time.Now(), ID: "test"}
-
-	key := KeyForTask("idx", &task)
-
-	assert.Equal(t, "idx", key.Index)
-	assert.Equal(t, task.Added.Format(time.RFC3339), key.Timestamp)
-	assert.Equal(t, task.ID, key.ID)
+	assert.Equal(t, &Key{"b", "c/d"}, k2)
 }

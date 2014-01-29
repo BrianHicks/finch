@@ -50,7 +50,7 @@ func (suite *TaskDBSuite) TestTasksIndexing() {
 	err := suite.db.PutTasks(t)
 	assert.Nil(suite.T(), err)
 
-	task, err := suite.db.GetTask(t.Key(TasksIndex))
+	task, err := suite.db.GetTask(t.Key())
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), t, task)
 }

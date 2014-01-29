@@ -35,5 +35,8 @@ func TestNewTask(t *testing.T) {
 func TestKey(t *testing.T) {
 	task := NewTask("test", time.Now())
 
-	assert.Equal(t, KeyForTask("idx", task), task.Key("idx"))
+	key := task.Key()
+
+	assert.Equal(t, task.Added.Format(time.RFC3339), key.Timestamp)
+	assert.Equal(t, task.ID, key.ID)
 }

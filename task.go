@@ -56,6 +56,9 @@ func (t *Task) Serialize() ([]byte, error) {
 }
 
 // Key returns a valid finch.Key for this Task
-func (t *Task) Key(idx string) *Key {
-	return KeyForTask(idx, t)
+func (t *Task) Key() *Key {
+	return &Key{
+		Timestamp: t.Added.Format(time.RFC3339),
+		ID:        t.ID,
+	}
 }

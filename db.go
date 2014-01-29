@@ -61,16 +61,15 @@ func (tdb *TaskDB) batchWriteTask(batch *leveldb.Batch, task *Task) error {
 	if err != nil {
 		return err
 	}
-	key := task.Key(TasksIndex)
+	key := task.Key()
 
-	batch.Put(key.Serialize(), szd)
+	batch.Put(key.Serialize(TasksIndex), szd)
 
 	for tag, presence := range task.Attrs {
-		key.Index = tag
 		if presence {
-			batch.Put(key.Serialize(), []byte{})
+			batch.Put(key.Serialize(tag), []byte{})
 		} else {
-			batch.Delete(key.Serialize())
+			batch.Delete(key.Serialize(tag))
 		}
 	}
 
@@ -101,8 +100,8 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 // each iteration, cb will be called with the current value of the Iterator,
 // and if cb returns a non-nil error that will bubble up to return from this
 // function. Errors from the iterator will also be returned.
-func (tdb *TaskDB) IterateOver(idx string, cb func(iterator.Iterator) error) error {
-	prefix := []byte(idx)
+func (tdb *TaskDB) IterateOver(prefix_ string, cb func(iterator.Iterator) error) error {
+	prefix := []byte(prefix_)
 
 	iter := tdb.db.NewIterator(tdb.ro)
 	iter.Seek(prefix)
@@ -131,15 +130,13 @@ func (tdb *TaskDB) IterateOver(idx string, cb func(iterator.Iterator) error) err
 
 // TasksForIndex returns a list of tasks that match an arbitrary index
 // (as string)
-func (tdb *TaskDB) TasksForIndex(idx string) ([]*Task, error) {
+func (tdb *TaskDB) TasksForIndex(prefix string) ([]*Task, error) {
 	tasks := []*Task{}
-	err := tdb.IterateOver(idx, func(iter iterator.Iterator) error {
+	err := tdb.IterateOver(prefix, func(iter iterator.Iterator) error {
 		key, err := DeserializeKey(iter.Key())
 		if err != nil {
 			return err
 		}
-
-		key.Index = TasksIndex
 
 		task, err := tdb.GetTask(key)
 		if err != nil {
@@ -166,18 +163,18 @@ func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
 
 // GetTask gets a single task by Key
 func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
-	return tdb.getTaskRaw(key.Serialize())
+	return tdb.getTaskRaw(key.Serialize(TasksIndex))
 }
 
 // GetPendingTasks returns a list of pending tasks
 func (tdb *TaskDB) GetPendingTasks() ([]*Task, error) {
-	return tdb.TasksForIndex(PendingIndex)
+	return tdb.TasksForIndex(TagPending)
 }
 
 // GetSelectedTasks returns a list of currently selected tasks in
 // newest-to-oldest order
 func (tdb *TaskDB) GetSelectedTasks() ([]*Task, error) {
-	tasks, err := tdb.TasksForIndex(SelectedIndex)
+	tasks, err := tdb.TasksForIndex(TagSelected)
 	if err != nil {
 		return tasks, err
 	}
