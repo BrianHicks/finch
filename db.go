@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	// ErrNoNextTask is returned when there is not a next selected task
-	ErrNoNextTask = errors.New("no next task")
+	// ErrNoTask is returned when there is not a next selected task
+	ErrNoTask = errors.New("no such task")
 )
 
 // TaskDB wraps a LevelDB instance and sets sane defaults for Finch's usage.
@@ -96,19 +96,44 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 	return nil
 }
 
+// MoveTask reindexes the current Task if the components of the Key change. It
+// does this in a Batch, so the Move is an atomic operation.
+//
+// Currently, that means if you change Task.Added or Task.ID you need to use
+// this or old data will always show up.
+func (tdb *TaskDB) MoveTask(oldKey *Key, task *Task) error {
+	batch := new(leveldb.Batch)
+
+	batch.Delete(oldKey.Serialize(TasksIndex))
+	for prefix := range task.Attrs {
+		batch.Delete(oldKey.Serialize(prefix))
+	}
+
+	err := tdb.batchWriteTask(batch, task)
+	if err != nil {
+		return err
+	}
+
+	if err := tdb.db.Write(batch, tdb.wo); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // IterateOver takes an index (as prefix) to iterate over and a callback. For
 // each iteration, cb will be called with the current value of the Iterator,
 // and if cb returns a non-nil error that will bubble up to return from this
 // function. Errors from the iterator will also be returned.
-func (tdb *TaskDB) IterateOver(prefix_ string, cb func(iterator.Iterator) error) error {
-	prefix := []byte(prefix_)
+func (tdb *TaskDB) IterateOver(prefix string, cb func(iterator.Iterator) error) error {
+	prefixBytes := []byte(prefix)
 
 	iter := tdb.db.NewIterator(tdb.ro)
-	iter.Seek(prefix)
+	iter.Seek(prefixBytes)
 	defer iter.Release()
 
 	for {
-		if !bytes.HasPrefix(iter.Key(), prefix) {
+		if !bytes.HasPrefix(iter.Key(), prefixBytes) {
 			break
 		}
 
@@ -153,6 +178,9 @@ func (tdb *TaskDB) TasksForIndex(prefix string) ([]*Task, error) {
 // getTaskRaw gets a task from a byteslice
 func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
 	szd, err := tdb.db.Get(key, tdb.ro)
+	if len(szd) == 0 {
+		return new(Task), ErrNoTask
+	}
 	if err != nil {
 		return new(Task), err
 	}
@@ -193,7 +221,7 @@ func (tdb *TaskDB) GetNextSelected() (*Task, error) {
 		return new(Task), err
 	}
 	if len(tasks) == 0 {
-		return new(Task), ErrNoNextTask
+		return new(Task), ErrNoTask
 	}
 
 	return tasks[0], nil

@@ -55,6 +55,27 @@ func (suite *TaskDBSuite) TestTasksIndexing() {
 	assert.Equal(suite.T(), t, task)
 }
 
+func (suite *TaskDBSuite) TestMove() {
+	task := NewTask("test", time.Now())
+	key := task.Key()
+
+	err := suite.db.PutTasks(task)
+	if !assert.Nil(suite.T(), err) {
+		// the rest of this test wouldn't make sense now, abort!
+		return
+	}
+
+	task.ID = "some-other-value"
+	suite.db.MoveTask(key, task)
+
+	_, err = suite.db.GetTask(key)
+	assert.Equal(suite.T(), ErrNoTask, err)
+
+	present, err := suite.db.GetTask(task.Key())
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), task, present)
+}
+
 func (suite *TaskDBSuite) TestPendingIndexing() {
 	nope := NewTask("test", time.Now())
 	nope.Attrs[TagPending] = false
@@ -86,7 +107,7 @@ func (suite *TaskDBSuite) TestSelectedIndexing() {
 func (suite *TaskDBSuite) TestGetNextSelected() {
 	// try it empty first
 	_, err := suite.db.GetNextSelected()
-	assert.Equal(suite.T(), ErrNoNextTask, err)
+	assert.Equal(suite.T(), ErrNoTask, err)
 
 	t := NewTask("test", time.Now())
 	t.Attrs[TagSelected] = true
