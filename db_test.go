@@ -18,39 +18,39 @@ func TestTaskDBDiskLifecycle(t *testing.T) {
 	assert.Nil(t, err)
 	defer filestore.Close()
 
-	db, err := NewTaskDB(filestore)
+	DB, err := NewTaskDB(filestore)
 	assert.Nil(t, err)
 	defer os.RemoveAll(name)
 
 	assert.Nil(t, err)
 
-	db.Close()
+	DB.Close()
 
-	assert.Nil(t, db.db)
+	assert.Nil(t, DB.DB)
 }
 
 type TaskDBSuite struct {
 	suite.Suite
-	db *TaskDB
+	DB *TaskDB
 }
 
 func (suite *TaskDBSuite) SetupTest() {
-	db, err := NewTaskDB(storage.NewMemStorage())
+	DB, err := NewTaskDB(storage.NewMemStorage())
 	assert.Nil(suite.T(), err)
-	suite.db = db
+	suite.DB = DB
 }
 
 func (suite *TaskDBSuite) TearDownTest() {
-	suite.db.Close()
+	suite.DB.Close()
 }
 
 func (suite *TaskDBSuite) TestTasksIndexing() {
 	t := NewTask("test", time.Now())
 
-	err := suite.db.PutTasks(t)
+	err := suite.DB.PutTasks(t)
 	assert.Nil(suite.T(), err)
 
-	task, err := suite.db.GetTask(t.Key())
+	task, err := suite.DB.GetTask(t.Key())
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), t, task)
 }
@@ -59,19 +59,19 @@ func (suite *TaskDBSuite) TestMove() {
 	task := NewTask("test", time.Now())
 	key := task.Key()
 
-	err := suite.db.PutTasks(task)
+	err := suite.DB.PutTasks(task)
 	if !assert.Nil(suite.T(), err) {
 		// the rest of this test wouldn't make sense now, abort!
 		return
 	}
 
 	task.ID = "some-other-value"
-	suite.db.MoveTask(key, task)
+	suite.DB.MoveTask(key, task)
 
-	_, err = suite.db.GetTask(key)
+	_, err = suite.DB.GetTask(key)
 	assert.Equal(suite.T(), ErrNoTask, err)
 
-	present, err := suite.db.GetTask(task.Key())
+	present, err := suite.DB.GetTask(task.Key())
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), task, present)
 }
@@ -83,9 +83,9 @@ func (suite *TaskDBSuite) TestPendingIndexing() {
 	yep := NewTask("test", time.Now())
 	nope.Attrs[TagPending] = true
 
-	suite.db.PutTasks(nope, yep)
+	suite.DB.PutTasks(nope, yep)
 
-	pending, err := suite.db.GetPendingTasks()
+	pending, err := suite.DB.GetPendingTasks()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), []*Task{yep}, pending)
 }
@@ -97,24 +97,24 @@ func (suite *TaskDBSuite) TestSelectedIndexing() {
 	yep := NewTask("selected", time.Now())
 	yep.Attrs[TagSelected] = true
 
-	suite.db.PutTasks(nope, yep)
+	suite.DB.PutTasks(nope, yep)
 
-	selected, err := suite.db.GetSelectedTasks()
+	selected, err := suite.DB.GetSelectedTasks()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), []*Task{yep}, selected)
 }
 
 func (suite *TaskDBSuite) TestGetNextSelected() {
 	// try it empty first
-	_, err := suite.db.GetNextSelected()
+	_, err := suite.DB.GetNextSelected()
 	assert.Equal(suite.T(), ErrNoTask, err)
 
 	t := NewTask("test", time.Now())
 	t.Attrs[TagSelected] = true
 
-	suite.db.PutTasks(t)
+	suite.DB.PutTasks(t)
 
-	next, err := suite.db.GetNextSelected()
+	next, err := suite.DB.GetNextSelected()
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), t, next)
 }

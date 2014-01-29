@@ -18,7 +18,7 @@ var (
 
 // TaskDB wraps a LevelDB instance and sets sane defaults for Finch's usage.
 type TaskDB struct {
-	db *leveldb.DB
+	DB *leveldb.DB
 	wo *opt.WriteOptions
 	ro *opt.ReadOptions
 }
@@ -31,11 +31,11 @@ func NewTaskDB(store storage.Storage) (*TaskDB, error) {
 	options := &opt.Options{
 		Filter: filter.NewBloomFilter(15),
 	}
-	db, err := leveldb.Open(store, options)
+	DB, err := leveldb.Open(store, options)
 	if err != nil {
 		return tdb, err
 	}
-	tdb.db = db
+	tdb.DB = DB
 
 	// Set default read and write options
 	tdb.wo = &opt.WriteOptions{
@@ -51,8 +51,8 @@ func NewTaskDB(store storage.Storage) (*TaskDB, error) {
 // Close should be called on a TaskDB to end it's lifecycle. The DB should not
 // be used after this is called.
 func (tdb *TaskDB) Close() {
-	tdb.db.Close()
-	tdb.db = nil
+	tdb.DB.Close()
+	tdb.DB = nil
 }
 
 // batchWriteTask makes sure that a task is completely written to the database
@@ -89,7 +89,7 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 		}
 	}
 
-	if err := tdb.db.Write(batch, tdb.wo); err != nil {
+	if err := tdb.DB.Write(batch, tdb.wo); err != nil {
 		return err
 	}
 
@@ -114,7 +114,7 @@ func (tdb *TaskDB) MoveTask(oldKey *Key, task *Task) error {
 		return err
 	}
 
-	if err := tdb.db.Write(batch, tdb.wo); err != nil {
+	if err := tdb.DB.Write(batch, tdb.wo); err != nil {
 		return err
 	}
 
@@ -128,7 +128,7 @@ func (tdb *TaskDB) MoveTask(oldKey *Key, task *Task) error {
 func (tdb *TaskDB) IterateOver(prefix string, cb func(iterator.Iterator) error) error {
 	prefixBytes := []byte(prefix)
 
-	iter := tdb.db.NewIterator(tdb.ro)
+	iter := tdb.DB.NewIterator(tdb.ro)
 	iter.Seek(prefixBytes)
 	defer iter.Release()
 
@@ -177,7 +177,7 @@ func (tdb *TaskDB) TasksForIndex(prefix string) ([]*Task, error) {
 
 // getTaskRaw gets a task from a byteslice
 func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
-	szd, err := tdb.db.Get(key, tdb.ro)
+	szd, err := tdb.DB.Get(key, tdb.ro)
 	if len(szd) == 0 {
 		return new(Task), ErrNoTask
 	}
