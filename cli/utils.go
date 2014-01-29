@@ -4,7 +4,7 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/brianhicks/finch"
+	"github.com/BrianHicks/finch"
 	"github.com/syndtr/goleveldb/leveldb/storage"
 
 	"os"
