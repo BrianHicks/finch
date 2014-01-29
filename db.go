@@ -99,7 +99,7 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 // MoveTask reindexes the current Task if the components of the Key change. It
 // does this in a Batch, so the Move is an atomic operation.
 //
-// Currently, that means if you change Task.Added or Task.ID you need to use
+// Currently, that means if you change Task.Timestamp or Task.ID you need to use
 // this or old data will always show up.
 func (tdb *TaskDB) MoveTask(oldKey *Key, task *Task) error {
 	batch := new(leveldb.Batch)

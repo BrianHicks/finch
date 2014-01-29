@@ -15,7 +15,7 @@ func Delayer(tdb *finch.TaskDB, args []string) (*finch.Task, error) {
 	}
 	oldKey := task.Key()
 
-	task.Added = time.Now()
+	task.Timestamp = time.Now()
 
 	err = tdb.MoveTask(oldKey, task)
 	if err != nil {

@@ -21,7 +21,7 @@ const (
 type Task struct {
 	ID          string
 	Description string
-	Added       time.Time
+	Timestamp   time.Time
 	Attrs       map[string]bool
 }
 
@@ -34,7 +34,7 @@ func NewTask(description string, added time.Time) *Task {
 		TagPending:  true,
 		TagSelected: false,
 	}
-	t.Added = added
+	t.Timestamp = added
 
 	hash := sha1.New()
 	io.WriteString(hash, description)
@@ -60,7 +60,7 @@ func (t *Task) Serialize() ([]byte, error) {
 // Key returns a valid finch.Key for this Task
 func (t *Task) Key() *Key {
 	return &Key{
-		Timestamp: t.Added.Format(time.RFC3339),
+		Timestamp: t.Timestamp.Format(time.RFC3339),
 		ID:        t.ID,
 	}
 }
