@@ -1,4 +1,4 @@
-.PHONY: all test deps clean
+.PHONY: all test deps clean install
 
 all: finch_darwin finch_linux finch_windows
 
@@ -17,6 +17,9 @@ clean:
 
 finch: clean deps
 	godep go build -o finch ./cli
+
+install: clean deps finch
+	cp finch $(GOPATH)/bin/finch
 
 finch_darwin: clean deps
 	GOOS=darwin godep go build -o finch_darwin ./cli
