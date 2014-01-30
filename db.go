@@ -129,20 +129,15 @@ func (tdb *TaskDB) IterateOver(prefix string, cb func(iterator.Iterator) error) 
 	prefixBytes := []byte(prefix)
 
 	iter := tdb.DB.NewIterator(tdb.ro)
-	iter.Seek(prefixBytes)
 	defer iter.Release()
 
-	for {
+	for ok := iter.Seek(prefixBytes); ok; ok = iter.Next() {
 		if !bytes.HasPrefix(iter.Key(), prefixBytes) {
 			break
 		}
 
 		if err := cb(iter); err != nil {
 			return err
-		}
-
-		if cont := iter.Next(); !cont {
-			break
 		}
 	}
 
