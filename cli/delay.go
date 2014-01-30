@@ -2,6 +2,7 @@ package main
 
 import (
 	commander "code.google.com/p/go-commander"
+	"fmt"
 	"github.com/BrianHicks/finch"
 	"time"
 
@@ -16,6 +17,7 @@ func Delayer(tdb *finch.TaskDB, args []string) (*finch.Task, error) {
 	oldKey := task.Key()
 
 	task.Timestamp = time.Now()
+	task.Attrs[finch.TagSelected] = false
 
 	err = tdb.MoveTask(oldKey, task)
 	if err != nil {
@@ -38,9 +40,11 @@ This will re-enter this task at the end of the database.`,
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}
 
-		_, err = Delayer(tdb, args)
+		task, err := Delayer(tdb, args)
 		if err != nil {
 			log.Fatalf("Error delaying task: %s\n", err)
 		}
+
+		fmt.Printf("Delayed \"%s\"\n", task.Description)
 	},
 }
