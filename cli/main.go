@@ -2,6 +2,7 @@ package main
 
 import (
 	commander "code.google.com/p/go-commander"
+	"fmt"
 
 	"os"
 )
@@ -19,5 +20,9 @@ var commands commander.Commander = commander.Commander{
 }
 
 func main() {
-	commands.Run(os.Args[1:])
+	err := commands.Run(os.Args[1:])
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
