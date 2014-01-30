@@ -89,5 +89,18 @@ email address is in my Github profile if you don't want to just open an issue.
 This is my first "real" go project and I'm open to changing things to fit with
 what the community usually expects.
 
+All that said, after the 0.1.0 release future work is going to be done on
+"develop" and feature branches. If anyone (including me) commits to master I'll
+be very unhappy. So to start working on this using [hub][hub]:
+
+```
+go get github.com/BrianHicks/finch
+cd $GOPATH/src/github.com/BrianHicks/finch
+hub fork
+git checkout develop
+git checkout -b feature/yourfeature
+```
+
 [mf]: http://markforster.squarespace.com/ "Get Everything Done - Mark Forster"
 [fv]: http://archive.constantcontact.com/fs004/1100358239599/archive/1109980854493.html "Final Version"
+[hub]: https://github.com/github/hub "Hub - hub helps you win at git"
