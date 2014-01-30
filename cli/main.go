@@ -14,6 +14,7 @@ var commands commander.Commander = commander.Commander{
 		Next,
 		Done,
 		Delay,
+		Version,
 	},
 }
 
