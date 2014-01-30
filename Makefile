@@ -16,7 +16,7 @@ clean:
 	git clean -fx
 
 finch: clean deps
-	GOOS=darwin_amd64 godep go build -o finch- ./cli
+	godep go build -o finch ./cli
 
 finch_darwin: clean deps
 	GOOS=darwin godep go build -o finch_darwin ./cli

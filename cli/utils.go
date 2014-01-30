@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"path/filepath"
 
 	"github.com/BrianHicks/finch"
@@ -22,7 +21,6 @@ func getTaskDB() (*finch.TaskDB, error) {
 	if dbPath == "" {
 		home := os.Getenv("HOME")
 		dbPath = filepath.Join(home, ".finchdb")
-		log.Print(dbPath)
 	}
 
 	store, err := storage.OpenFile(dbPath)

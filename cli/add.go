@@ -2,6 +2,7 @@ package main
 
 import (
 	commander "code.google.com/p/go-commander"
+	"fmt"
 	"github.com/BrianHicks/finch"
 	"strings"
 	"time"
@@ -30,9 +31,11 @@ var Add *commander.Command = &commander.Command{
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}
 
-		_, err = Adder(tdb, args)
+		task, err := Adder(tdb, args)
 		if err != nil {
 			log.Fatalf("Error adding task: %s\n", err)
 		}
+
+		fmt.Printf("Added \"%s\"\n", task.Description)
 	},
 }
