@@ -11,6 +11,6 @@ var Version *commander.Command = &commander.Command{
 	Short:     "show version number and exit",
 	Long:      "show version number and exit",
 	Run: func(cmd *commander.Command, args []string) {
-		fmt.Println("0.1.0")
+		fmt.Println("0.1.1")
 	},
 }
