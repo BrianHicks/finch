@@ -71,5 +71,23 @@ $ finch select
 
 To get descriptions of the commands, run `finch help` or `finch help [command]`.
 
+## Contributing/Development/Hacking
+
+To be painfully honest I haven't thought through the licensing of this tool
+yet. It will be some form of open source, probably MIT or BSD. If you want to
+contribute now (as if anyone would) please understand that I may not accept
+pull requests until I figure this out and you agree with how your work is being
+licensed.
+
+That said, `go get github.com/BrianHicks/finch` (or `git clone`, of course)
+should do the trick. You can run `make deps` to get everything. Before you
+commit, please run `make test`, `make lint`, and `gofmt`. It'll make everyone's
+lives easier.
+
+If you have any thoughts about licensing or build tools please tell me! My
+email address is in my Github profile if you don't want to just open an issue.
+This is my first "real" go project and I'm open to changing things to fit with
+what the community usually expects.
+
 [mf]: http://markforster.squarespace.com/ "Get Everything Done - Mark Forster"
 [fv]: http://archive.constantcontact.com/fs004/1100358239599/archive/1109980854493.html "Final Version"
