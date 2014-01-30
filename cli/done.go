@@ -43,6 +43,6 @@ var Done *commander.Command = &commander.Command{
 			log.Fatalf("Error marking task done: %s\n", err)
 		}
 
-		fmt.Printf("Added \"%s\"\n", task.Description)
+		fmt.Printf("Marked \"%s\" done\n", task.Description)
 	},
 }
