@@ -8,17 +8,7 @@ algorithm by [Mark Forster][mf].
 
 ## Installation
 
-Grab the binaries from GitHub. Or to build specifically for your platform:
-
-```sh
-go get github.com/BrianHicks/finch
-cd $GOPATH/src/github.com/BrianHicks/finch
-make finch
-```
-
-This will change in the future to be `go install`able, but it's gotta ship for
-now! If it's a big deal for you, leave me a +1 on
-[#1](https://github.com/BrianHicks/finch/issues/1).
+    go get github.com/BrianHicks/finch/finch
 
 ## Usage
 
