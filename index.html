@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Finch by BrianHicks</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Finch</h1>
+          <h2>A task manager which implements the Final Version algorithm by Mark Forster</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/BrianHicks/finch/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/BrianHicks/finch/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/BrianHicks/finch" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a name="finch" class="anchor" href="#finch"><span class="octicon octicon-link"></span></a>Finch</h1>
+
+<p><a href="https://godoc.org/github.com/BrianHicks/finch"><img src="https://godoc.org/github.com/BrianHicks/finch?status.png" alt="GoDoc"></a>
+<a href="https://travis-ci.org/BrianHicks/finch"><img src="https://travis-ci.org/BrianHicks/finch.png?branch=master" alt="Build Status"></a></p>
+
+<p>A task manager, written in Go. Finch implements the <a href="http://archive.constantcontact.com/fs004/1100358239599/archive/1109980854493.html" title="Final Version">Final Version</a>
+algorithm by <a href="http://markforster.squarespace.com/" title="Get Everything Done - Mark Forster">Mark Forster</a>.</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Grab the binaries from GitHub. Or to build specifically for your platform:</p>
+
+<div class="highlight highlight-sh"><pre>go get github.com/BrianHicks/finch
+<span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/BrianHicks/finch
+make finch
+</pre></div>
+
+<p>This will change in the future to be <code>go install</code>able, but it's gotta ship for
+now! If it's a big deal for you, leave me a +1 on
+<a href="https://github.com/BrianHicks/finch/issues/1">#1</a>.</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>To sum up how this works: add tasks to a list, mark some as "selected" (always
+starting with the oldest), then work through your selected list
+newest-to-oldest. In Finch, the sequence would look like this:</p>
+
+<pre><code>$ finch add email Jane about the meeting
+Added "email Jane about the meeting"
+
+$ finch add fix the holodeck
+Added "fix the holodeck"
+
+$ finch add eat lunch
+Added "eat lunch"
+
+$ finch select
+0: email Jane about the meeting
+1: fix the holodeck
+2: eat lunch
+
+$ finch select 0 2
+Selecting "0"... selected "email Jane about the meeting"
+Selecting "2"... selected "eat lunch"
+Wrote 2 tasks to DB
+
+$ finch next
+eat lunch
+
+# after lunch...
+
+$ finch done
+Marked "eat lunch" done
+
+$ finch next
+email Jane about the meeting
+
+# but you decide that "email Jane about the meeting" can't be done now, or you
+# do a little bit of work on it and are interrupted. FV says you should
+# re-enter the task at the end of the list. So we have "delay" as well.
+
+$ finch delay
+Delayed "email Jane about the meeting"
+
+$ finch select
+0: fix the holodeck
+1: email Jane about the meeting
+</code></pre>
+
+<p>To get descriptions of the commands, run <code>finch help</code> or <code>finch help [command]</code>.</p>
+
+<h2>
+<a name="contributingdevelopmenthacking" class="anchor" href="#contributingdevelopmenthacking"><span class="octicon octicon-link"></span></a>Contributing/Development/Hacking</h2>
+
+<p>Finch is licensed under the <a href="LICENSE.txt">Apache License</a>. By contributing,
+you agree to licensing your contributions under the Apache License and bound to
+provide only code you have the right to license in that manner.</p>
+
+<p>If you just want something to do, check out the <a href="https://github.com/brianhicks/finch/issues?labels=low-hanging+fruit&amp;page=1&amp;state=open" title="Issues • BrianHicks/finch">low-hanging fruit</a> tag on
+the <a href="https://github.com/brianhicks/finch/issues?state=open" title="Issues • BrianHicks/finch">issues</a> for this repository.</p>
+
+<p>With that out of the way, <code>go get github.com/BrianHicks/finch</code> (or <code>git clone</code>,
+of course) should do the trick. You can run <code>make deps</code> to get everything.
+Before you commit, please run <code>make test</code>, <code>make lint</code>, and <code>gofmt</code>. It'll make
+everyone's lives easier.</p>
+
+<p>Work on unreleased versions is done on "develop" and feature branches. If
+anyone (including me) commits to master I'll be very unhappy. So to start
+working on this using <a href="https://github.com/github/hub" title="Hub - hub helps you win at git">hub</a>:</p>
+
+<pre><code>go get github.com/BrianHicks/finch
+cd $GOPATH/src/github.com/BrianHicks/finch
+hub fork
+git checkout develop
+git checkout -b feature/yourfeature
+</code></pre>
+
+<p>If you have any thoughts about build tools please tell me! My email address is
+in my Github profile if you don't want to just open an issue. This is my first
+"real" go project and I'm open to changing things to fit with what the
+community usually expects.</p>
+        </section>
+
+        <footer>
+          Finch is maintained by <a href="https://github.com/BrianHicks">BrianHicks</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
