@@ -15,17 +15,11 @@ deps:
 clean:
 	git clean -fx
 
-finch: clean deps
-	godep go build -o finch ./cli
-
-install: clean deps finch
-	cp finch $(GOPATH)/bin/finch
-
 finch_darwin: clean deps
-	GOOS=darwin godep go build -o finch_darwin ./cli
+	GOOS=darwin godep go build -o finch_darwin ./finch
 
 finch_linux: clean deps
-	GOOS=linux godep go build -o finch_linux ./cli
+	GOOS=linux godep go build -o finch_linux ./finch
 
 finch_windows: clean deps
-	GOOS=linux godep go build -o finch_windows ./cli
+	GOOS=linux godep go build -o finch_windows ./finch
