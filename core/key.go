@@ -1,4 +1,4 @@
-package finch
+package core
 
 import "strings"
 

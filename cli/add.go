@@ -3,15 +3,15 @@ package main
 import (
 	commander "code.google.com/p/go-commander"
 	"fmt"
-	"github.com/BrianHicks/finch"
+	"github.com/BrianHicks/finch/core"
 	"strings"
 	"time"
 
 	"log"
 )
 
-func Adder(tdb *finch.TaskDB, args []string) (*finch.Task, error) {
-	task := finch.NewTask(strings.Join(args, " "), time.Now())
+func Adder(tdb *core.TaskDB, args []string) (*core.Task, error) {
+	task := core.NewTask(strings.Join(args, " "), time.Now())
 	err := tdb.PutTasks(task)
 	if err != nil {
 		return task, err

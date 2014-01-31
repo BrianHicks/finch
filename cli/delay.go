@@ -3,13 +3,13 @@ package main
 import (
 	commander "code.google.com/p/go-commander"
 	"fmt"
-	"github.com/BrianHicks/finch"
+	"github.com/BrianHicks/finch/core"
 	"time"
 
 	"log"
 )
 
-func Delayer(tdb *finch.TaskDB, args []string) (*finch.Task, error) {
+func Delayer(tdb *core.TaskDB, args []string) (*core.Task, error) {
 	task, err := tdb.GetNextSelected()
 	if err != nil {
 		return task, err
@@ -17,7 +17,7 @@ func Delayer(tdb *finch.TaskDB, args []string) (*finch.Task, error) {
 	oldKey := task.Key()
 
 	task.Timestamp = time.Now()
-	task.Attrs[finch.TagSelected] = false
+	task.Attrs[core.TagSelected] = false
 
 	err = tdb.MoveTask(oldKey, task)
 	if err != nil {

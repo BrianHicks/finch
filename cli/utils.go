@@ -3,7 +3,7 @@ package main
 import (
 	"path/filepath"
 
-	"github.com/BrianHicks/finch"
+	"github.com/BrianHicks/finch/core"
 	"github.com/syndtr/goleveldb/leveldb/storage"
 
 	"os"
@@ -12,10 +12,10 @@ import (
 // getStorage takes the FINCH_STORAGE environment variable into account. If
 // it's "mem", this will return an in-memory database. If that's not true,
 // it'll return an instantiated TaskDB instance.
-func getTaskDB() (*finch.TaskDB, error) {
+func getTaskDB() (*core.TaskDB, error) {
 	dbPath := os.Getenv("FINCH_STORAGE")
 	if dbPath == "mem" {
-		return finch.NewTaskDB(storage.NewMemStorage())
+		return core.NewTaskDB(storage.NewMemStorage())
 	}
 
 	if dbPath == "" {
@@ -25,10 +25,10 @@ func getTaskDB() (*finch.TaskDB, error) {
 
 	store, err := storage.OpenFile(dbPath)
 	if err != nil {
-		return new(finch.TaskDB), err
+		return new(core.TaskDB), err
 	}
 
-	tdb, err := finch.NewTaskDB(store)
+	tdb, err := core.NewTaskDB(store)
 	if err != nil {
 		return tdb, err
 	}

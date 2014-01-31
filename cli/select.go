@@ -3,13 +3,13 @@ package main
 import (
 	commander "code.google.com/p/go-commander"
 	"fmt"
-	"github.com/BrianHicks/finch"
+	"github.com/BrianHicks/finch/core"
 	"strconv"
 
 	"log"
 )
 
-func Selector(tdb *finch.TaskDB, args []string) ([]*finch.Task, error) {
+func Selector(tdb *core.TaskDB, args []string) ([]*core.Task, error) {
 	tasks, err := tdb.GetPendingTasks()
 	if err != nil {
 		return tasks, err
@@ -23,10 +23,10 @@ func Selector(tdb *finch.TaskDB, args []string) ([]*finch.Task, error) {
 			fmt.Printf("%d: %s\n", i, tasks[i].Description)
 		}
 
-		return []*finch.Task{}, nil
+		return []*core.Task{}, nil
 	} else {
 		// select tasks and print status for each one
-		selected := []*finch.Task{}
+		selected := []*core.Task{}
 
 		for i := 0; i < len(args); i++ {
 			fmt.Printf("selecting \"%s\"... ", args[i])
@@ -43,7 +43,7 @@ func Selector(tdb *finch.TaskDB, args []string) ([]*finch.Task, error) {
 			}
 
 			task := tasks[taskNum]
-			task.Attrs[finch.TagSelected] = true
+			task.Attrs[core.TagSelected] = true
 			selected = append(selected, task)
 			fmt.Printf("selected \"%s\"\n", task.Description)
 		}
@@ -60,7 +60,7 @@ func Selector(tdb *finch.TaskDB, args []string) ([]*finch.Task, error) {
 		return selected, nil
 	}
 
-	return []*finch.Task{}, nil
+	return []*core.Task{}, nil
 }
 
 var Select *commander.Command = &commander.Command{

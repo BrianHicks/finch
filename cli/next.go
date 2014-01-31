@@ -3,12 +3,12 @@ package main
 import (
 	commander "code.google.com/p/go-commander"
 	"fmt"
-	"github.com/BrianHicks/finch"
+	"github.com/BrianHicks/finch/core"
 
 	"log"
 )
 
-func GetNext(tdb *finch.TaskDB, args []string) (*finch.Task, error) {
+func GetNext(tdb *core.TaskDB, args []string) (*core.Task, error) {
 	return tdb.GetNextSelected()
 }
 

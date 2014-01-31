@@ -3,19 +3,19 @@ package main
 import (
 	commander "code.google.com/p/go-commander"
 	"fmt"
-	"github.com/BrianHicks/finch"
+	"github.com/BrianHicks/finch/core"
 
 	"log"
 )
 
-func MarkDone(tdb *finch.TaskDB, args []string) (*finch.Task, error) {
+func MarkDone(tdb *core.TaskDB, args []string) (*core.Task, error) {
 	task, err := tdb.GetNextSelected()
 	if err != nil {
 		return task, err
 	}
 
-	task.Attrs[finch.TagSelected] = false
-	task.Attrs[finch.TagPending] = false
+	task.Attrs[core.TagSelected] = false
+	task.Attrs[core.TagPending] = false
 
 	// TODO: callbacks to other programs here?
 

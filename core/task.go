@@ -1,4 +1,4 @@
-package finch
+package core
 
 import (
 	"crypto/sha1"
@@ -57,7 +57,7 @@ func (t *Task) Serialize() ([]byte, error) {
 	return b, err
 }
 
-// Key returns a valid finch.Key for this Task
+// Key returns a valid core.Key for this Task
 func (t *Task) Key() *Key {
 	return &Key{
 		Timestamp: t.Timestamp.Format(time.RFC3339),
