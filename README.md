@@ -73,25 +73,21 @@ To get descriptions of the commands, run `finch help` or `finch help [command]`.
 
 ## Contributing/Development/Hacking
 
-To be painfully honest I haven't thought through the licensing of this tool
-yet. It will be some form of open source, probably MIT or BSD. If you want to
-contribute now (as if anyone would) please understand that I may not accept
-pull requests until I figure this out and you agree with how your work is being
-licensed.
+Finch is licensed under the [Apache License](LICENSE.txt). By contributing,
+you agree to licensing your contributions under the Apache License and bound to
+provide only code you have the right to license in that manner.
 
-That said, `go get github.com/BrianHicks/finch` (or `git clone`, of course)
-should do the trick. You can run `make deps` to get everything. Before you
-commit, please run `make test`, `make lint`, and `gofmt`. It'll make everyone's
-lives easier.
+If you just want something to do, check out the [low-hanging fruit][lhf] tag on
+the [issues][issues] for this repository.
 
-If you have any thoughts about licensing or build tools please tell me! My
-email address is in my Github profile if you don't want to just open an issue.
-This is my first "real" go project and I'm open to changing things to fit with
-what the community usually expects.
+With that out of the way, `go get github.com/BrianHicks/finch` (or `git clone`,
+of course) should do the trick. You can run `make deps` to get everything.
+Before you commit, please run `make test`, `make lint`, and `gofmt`. It'll make
+everyone's lives easier.
 
-All that said, after the 0.1.0 release future work is going to be done on
-"develop" and feature branches. If anyone (including me) commits to master I'll
-be very unhappy. So to start working on this using [hub][hub]:
+Work on unreleased versions is done on "develop" and feature branches. If
+anyone (including me) commits to master I'll be very unhappy. So to start
+working on this using [hub][hub]:
 
 ```
 go get github.com/BrianHicks/finch
@@ -101,6 +97,13 @@ git checkout develop
 git checkout -b feature/yourfeature
 ```
 
+If you have any thoughts about build tools please tell me! My email address is
+in my Github profile if you don't want to just open an issue. This is my first
+"real" go project and I'm open to changing things to fit with what the
+community usually expects.
+
 [mf]: http://markforster.squarespace.com/ "Get Everything Done - Mark Forster"
 [fv]: http://archive.constantcontact.com/fs004/1100358239599/archive/1109980854493.html "Final Version"
 [hub]: https://github.com/github/hub "Hub - hub helps you win at git"
+[lhf]: https://github.com/brianhicks/finch/issues?labels=low-hanging+fruit&page=1&state=open "Issues • BrianHicks/finch"
+[issues]: https://github.com/brianhicks/finch/issues?state=open "Issues • BrianHicks/finch"
