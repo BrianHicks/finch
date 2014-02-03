@@ -3,7 +3,7 @@
 all: finch_darwin finch_linux finch_windows
 
 test: deps
-	godep go test -v ./...
+	godep go test -parallel=8 -v ./...
 
 lint:
 	golint *.go
