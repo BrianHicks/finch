@@ -54,7 +54,7 @@ func NewInMemory() (*DB, error) {
 func (db *DB) Range(start, end []byte) *Range {
 	return &Range{
 		Start: start,
-		End:   end,
+		Limit: end,
 		db:    db,
 	}
 }
@@ -67,7 +67,7 @@ func (db *DB) Prefix(start []byte) *Range {
 
 	return &Range{
 		Start: start,
-		End:   end,
+		Limit: end,
 		db:    db,
 	}
 }

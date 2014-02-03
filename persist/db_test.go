@@ -32,7 +32,7 @@ func TestRange(t *testing.T) {
 	r := db.Range([]byte("start"), []byte("end"))
 
 	assert.Equal(t, r.Start, []byte("start"))
-	assert.Equal(t, r.End, []byte("end"))
+	assert.Equal(t, r.Limit, []byte("end"))
 	assert.Equal(t, r.db, db)
 }
 
@@ -44,6 +44,6 @@ func TestPrefixRange(t *testing.T) {
 	r := db.Prefix([]byte{0, 1})
 
 	assert.Equal(t, r.Start, []byte{0, 1})
-	assert.Equal(t, r.End, []byte{0, 2})
+	assert.Equal(t, r.Limit, []byte{0, 2})
 	assert.Equal(t, r.db, db)
 }
