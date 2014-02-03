@@ -24,6 +24,8 @@ func (r *Range) Contains(target []byte) bool {
 
 func (r *Range) First() ([]byte, error) {
 	iter := r.db.NewIterator(r.db.ro)
+	defer iter.Release()
+
 	iter.Seek(r.Start)
 
 	if !r.Contains(iter.Key()) {
@@ -35,6 +37,8 @@ func (r *Range) First() ([]byte, error) {
 
 func (r *Range) Last() ([]byte, error) {
 	iter := r.db.NewIterator(r.db.ro)
+	defer iter.Release()
+
 	iter.Seek(r.Limit)
 	iter.Prev()
 
@@ -45,6 +49,19 @@ func (r *Range) Last() ([]byte, error) {
 	return iter.Value(), nil
 }
 
-func (r *Range) All() [][]byte {
-	return [][]byte{}
+func (r *Range) All() ([][]byte, error) {
+	iter := r.db.NewIterator(r.db.ro)
+	defer iter.Release()
+
+	values := [][]byte{}
+	for ok := iter.Seek(r.Start); ok; ok = iter.Next() {
+		if !r.Contains(iter.Key()) {
+			break
+		}
+		value := make([]byte, len(iter.Value()))
+		copy(value, iter.Value())
+		values = append(values, value)
+	}
+
+	return values, iter.Error()
 }

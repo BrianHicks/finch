@@ -94,3 +94,24 @@ func TestRangeLastIsFirst(t *testing.T) {
 	assert.Equal(t, doc, fst)
 	assert.Equal(t, doc, lst)
 }
+
+func TestRangeAll(t *testing.T) {
+	t.Parallel()
+	db, err := NewInMemory()
+	assert.Nil(t, err)
+
+	prefix := byte(1)
+	values := [][]byte{}
+
+	for i := byte(1); i < 5; i++ {
+		value := []byte{i}
+		err := db.Put([]byte{prefix, i}, value, db.wo)
+		assert.Nil(t, err)
+		values = append(values, value)
+	}
+
+	all, err := db.Prefix([]byte{prefix}).All()
+
+	assert.Nil(t, err)
+	assert.Equal(t, values, all)
+}
