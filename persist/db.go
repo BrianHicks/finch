@@ -10,8 +10,8 @@ import (
 // DB wraps a LevelDB instance and sets sane defaults
 type DB struct {
 	*leveldb.DB
-	wo *opt.WriteOptions
-	ro *opt.ReadOptions
+	WO *opt.WriteOptions
+	RO *opt.ReadOptions
 }
 
 // newDB takes a storage and returns DB instance
@@ -29,10 +29,10 @@ func New(store storage.Storage) (*DB, error) {
 	db.DB = DB
 
 	// Set default read and write options
-	db.wo = &opt.WriteOptions{
+	db.WO = &opt.WriteOptions{
 		Sync: true,
 	}
-	db.ro = &opt.ReadOptions{
+	db.RO = &opt.ReadOptions{
 		DontFillCache: false,
 	}
 

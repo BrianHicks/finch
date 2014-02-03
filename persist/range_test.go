@@ -27,7 +27,7 @@ func TestRangeFirst(t *testing.T) {
 	key := []byte("test")
 	doc := []byte{1}
 
-	err = db.Put(key, doc, db.wo)
+	err = db.Put(key, doc, db.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
@@ -49,9 +49,9 @@ func TestRangeLast(t *testing.T) {
 	key := []byte("test/2")
 	doc := []byte{1}
 
-	err = db.Put([]byte("test/1"), []byte{0}, db.wo)
+	err = db.Put([]byte("test/1"), []byte{0}, db.WO)
 	assert.Nil(t, err)
-	err = db.Put(key, doc, db.wo)
+	err = db.Put(key, doc, db.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
@@ -76,12 +76,12 @@ func TestRangeLastIsFirst(t *testing.T) {
 	key := []byte{2}
 	doc := []byte{1}
 
-	err = db.Put([]byte{1}, []byte{}, db.wo)
+	err = db.Put([]byte{1}, []byte{}, db.WO)
 	assert.Nil(t, err)
-	err = db.Put([]byte{3}, []byte{}, db.wo)
+	err = db.Put([]byte{3}, []byte{}, db.WO)
 	assert.Nil(t, err)
 
-	err = db.Put(key, doc, db.wo)
+	err = db.Put(key, doc, db.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
@@ -105,7 +105,7 @@ func TestRangeAll(t *testing.T) {
 
 	for i := byte(1); i < 5; i++ {
 		value := []byte{i}
-		err := db.Put([]byte{prefix, i}, value, db.wo)
+		err := db.Put([]byte{prefix, i}, value, db.WO)
 		assert.Nil(t, err)
 		values = append(values, value)
 	}
