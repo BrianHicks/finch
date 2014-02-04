@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func GetNext(tdb *core.TaskDB, args []string) (*core.Task, error) {
+func GetNext(tdb *core.TaskStore, args []string) (*core.Task, error) {
 	return tdb.GetNextSelected()
 }
 
@@ -17,7 +17,7 @@ var Next *commander.Command = &commander.Command{
 	Short:     "display the current task",
 	Long:      `show the currently active task. This will be the most recently added selected task. To select tasks, run "select".`,
 	Run: func(cmd *commander.Command, args []string) {
-		tdb, err := getTaskDB()
+		tdb, err := getTaskStore()
 		defer tdb.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)

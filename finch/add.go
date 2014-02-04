@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-func Adder(tdb *core.TaskDB, args []string) (*core.Task, error) {
+func Adder(tdb *core.TaskStore, args []string) (*core.Task, error) {
 	task := core.NewTask(strings.Join(args, " "), time.Now())
 	err := tdb.PutTasks(task)
 	if err != nil {
@@ -25,7 +25,7 @@ var Add *commander.Command = &commander.Command{
 	Short:     "add a new task to the task database",
 	Long:      "add a new task to the task database",
 	Run: func(cmd *commander.Command, args []string) {
-		tdb, err := getTaskDB()
+		tdb, err := getTaskStore()
 		defer tdb.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)

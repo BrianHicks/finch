@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-// TestTaskDBDiskLifecycle makes sure that we can read and write to disk. The
-// rest of the TaskDB tests should use the in-memory versions of the database.
-func TestTaskDBDiskLifecycle(t *testing.T) {
+// TestTaskStoreDiskLifecycle makes sure that we can read and write to disk. The
+// rest of the TaskStore tests should use the in-memory versions of the database.
+func TestTaskStoreDiskLifecycle(t *testing.T) {
 	name := "_taskdb_lifecycle"
 	filestore, err := storage.OpenFile(name)
 	assert.Nil(t, err)
 	defer filestore.Close()
 
-	DB, err := NewTaskDB(filestore)
+	DB, err := NewTaskStore(filestore)
 	assert.Nil(t, err)
 	defer os.RemoveAll(name)
 
@@ -26,25 +26,25 @@ func TestTaskDBDiskLifecycle(t *testing.T) {
 
 	DB.Close()
 
-	assert.Nil(t, DB.DB)
+	assert.Nil(t, DB.Store)
 }
 
-type TaskDBSuite struct {
+type TaskStoreSuite struct {
 	suite.Suite
-	DB *TaskDB
+	DB *TaskStore
 }
 
-func (suite *TaskDBSuite) SetupTest() {
-	DB, err := NewTaskDB(storage.NewMemStorage())
+func (suite *TaskStoreSuite) SetupTest() {
+	DB, err := NewTaskStore(storage.NewMemStorage())
 	assert.Nil(suite.T(), err)
 	suite.DB = DB
 }
 
-func (suite *TaskDBSuite) TearDownTest() {
+func (suite *TaskStoreSuite) TearDownTest() {
 	suite.DB.Close()
 }
 
-func (suite *TaskDBSuite) TestTasksIndexing() {
+func (suite *TaskStoreSuite) TestTasksIndexing() {
 	t := NewTask("test", time.Now())
 
 	err := suite.DB.PutTasks(t)
@@ -55,7 +55,7 @@ func (suite *TaskDBSuite) TestTasksIndexing() {
 	assert.Equal(suite.T(), t, task)
 }
 
-func (suite *TaskDBSuite) TestMove() {
+func (suite *TaskStoreSuite) TestMove() {
 	task := NewTask("test", time.Now())
 	key := task.Key()
 
@@ -76,7 +76,7 @@ func (suite *TaskDBSuite) TestMove() {
 	assert.Equal(suite.T(), task, present)
 }
 
-func (suite *TaskDBSuite) TestPendingIndexing() {
+func (suite *TaskStoreSuite) TestPendingIndexing() {
 	nope := NewTask("test", time.Now())
 	nope.Attrs[TagPending] = false
 
@@ -90,7 +90,7 @@ func (suite *TaskDBSuite) TestPendingIndexing() {
 	assert.Equal(suite.T(), []*Task{yep}, pending)
 }
 
-func (suite *TaskDBSuite) TestSelectedIndexing() {
+func (suite *TaskStoreSuite) TestSelectedIndexing() {
 	nope := NewTask("test", time.Now())
 	nope.Attrs[TagSelected] = false
 
@@ -104,7 +104,7 @@ func (suite *TaskDBSuite) TestSelectedIndexing() {
 	assert.Equal(suite.T(), []*Task{yep}, selected)
 }
 
-func (suite *TaskDBSuite) TestGetNextSelected() {
+func (suite *TaskStoreSuite) TestGetNextSelected() {
 	// try it empty first
 	_, err := suite.DB.GetNextSelected()
 	assert.Equal(suite.T(), ErrNoTask, err)
@@ -119,6 +119,6 @@ func (suite *TaskDBSuite) TestGetNextSelected() {
 	assert.Equal(suite.T(), t, next)
 }
 
-func TestTaskDBSuite(t *testing.T) {
-	suite.Run(t, new(TaskDBSuite))
+func TestTaskStoreSuite(t *testing.T) {
+	suite.Run(t, new(TaskStoreSuite))
 }
