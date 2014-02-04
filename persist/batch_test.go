@@ -41,6 +41,19 @@ func TestLoggedOperationSerialize(t *testing.T) {
 	assert.Equal(t, packed, serialized)
 }
 
+func TestDeserializeLoggedOperation(t *testing.T) {
+	t.Parallel()
+
+	op := LoggedOperation{"TEST", nil, nil, time.Now()}
+	serialized, err := op.Serialize()
+	assert.Nil(t, err)
+
+	dszd, err := DeserializeLoggedOperation(serialized)
+	assert.Nil(t, err)
+
+	assert.Exactly(t, &op, dszd)
+}
+
 func TestLoggedBatchPut(t *testing.T) {
 	t.Parallel()
 	store, err := NewInMemory()

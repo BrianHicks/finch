@@ -27,6 +27,14 @@ func NewLoggedOperation(operation string, key, value []byte) *LoggedOperation {
 	}
 }
 
+// DeserializeLoggedOperation deserializes a serialized LoggedOperation (from
+// msgpack)
+func DeserializeLoggedOperation(szd []byte) (*LoggedOperation, error) {
+	operation := new(LoggedOperation)
+	err := msgpack.Unmarshal(szd, operation)
+	return operation, err
+}
+
 // LogKey returns the key that this LoggedOperation will be stored under in the
 // LevelDB store.
 func (lo *LoggedOperation) LogKey() []byte {
