@@ -18,7 +18,7 @@ var Next *commander.Command = &commander.Command{
 	Long:      `show the currently active task. This will be the most recently added selected task. To select tasks, run "select".`,
 	Run: func(cmd *commander.Command, args []string) {
 		tdb, err := getTaskStore()
-		defer tdb.Close()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}

@@ -26,7 +26,7 @@ var Add *commander.Command = &commander.Command{
 	Long:      "add a new task to the task database",
 	Run: func(cmd *commander.Command, args []string) {
 		tdb, err := getTaskStore()
-		defer tdb.Close()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}

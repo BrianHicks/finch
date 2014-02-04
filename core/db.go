@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/BrianHicks/finch/persist"
-	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/storage"
 )
 
@@ -13,11 +12,13 @@ var (
 	ErrNoTask = errors.New("no such task")
 )
 
-// TaskStore wraps a LevelStore instance and sets sane defaults for Finch's usage.
+// TaskStore wraps a persist.Store instance. TaskStore is only concerned with
+// handling tasks, not underlying DB open and close (though historically it
+// has, such as in NewTaskStore.) This means that when you're done with
+// TaskStore, discard it however you feel necessary. But when you're done with
+// the underlying Store, call Close on it directly.
 type TaskStore struct {
 	Store *persist.Store
-	wo    *opt.WriteOptions
-	ro    *opt.ReadOptions
 }
 
 // NewTaskStore takes a storage and returns TaskStore instance
@@ -31,13 +32,6 @@ func NewTaskStore(storage storage.Storage) (*TaskStore, error) {
 	ts.Store = store
 
 	return ts, nil
-}
-
-// Close should be called on a TaskStore to end it's lifecycle. The Store should not
-// be used after this is called.
-func (ts *TaskStore) Close() {
-	ts.Store.Close()
-	ts.Store = nil
 }
 
 // batchWriteTask makes sure that a task is completely written to the database

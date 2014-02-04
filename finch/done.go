@@ -33,7 +33,7 @@ var Done *commander.Command = &commander.Command{
 	Long:      `mark the current task (from "next") as done. If you're not actually *done* with this task, use "delay"`,
 	Run: func(cmd *commander.Command, args []string) {
 		tdb, err := getTaskStore()
-		defer tdb.Close()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}

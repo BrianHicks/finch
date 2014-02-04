@@ -75,7 +75,7 @@ To select tasks, call "select" once to view a list of tasks. Then you can run
 "select" with the numbers of the tasks you want to select them.`,
 	Run: func(cmd *commander.Command, args []string) {
 		tdb, err := getTaskStore()
-		defer tdb.Close()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}

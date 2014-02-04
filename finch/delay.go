@@ -35,7 +35,7 @@ var Delay *commander.Command = &commander.Command{
 This will re-enter this task at the end of the database.`,
 	Run: func(cmd *commander.Command, args []string) {
 		tdb, err := getTaskStore()
-		defer tdb.Close()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}
