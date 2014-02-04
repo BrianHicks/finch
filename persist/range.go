@@ -20,21 +20,21 @@ func (r *Range) contains(target []byte) bool {
 }
 
 // First gets the first matching value in the Range
-func (r *Range) First() ([]byte, error) {
+func (r *Range) First() (*KV, error) {
 	iter := r.store.DB.NewIterator(r.store.RO)
 	defer iter.Release()
 
 	iter.Seek(r.Start)
 
 	if !r.contains(iter.Key()) {
-		return []byte{}, leveldb.ErrNotFound
+		return new(KV), leveldb.ErrNotFound
 	}
 
-	return iter.Value(), nil
+	return NewKVFromIter(iter), nil
 }
 
 // Last gets the last matching value in the Range
-func (r *Range) Last() ([]byte, error) {
+func (r *Range) Last() (*KV, error) {
 	iter := r.store.DB.NewIterator(r.store.RO)
 	defer iter.Release()
 
@@ -42,25 +42,23 @@ func (r *Range) Last() ([]byte, error) {
 	iter.Prev()
 
 	if !r.contains(iter.Key()) {
-		return []byte{}, leveldb.ErrNotFound
+		return new(KV), leveldb.ErrNotFound
 	}
 
-	return iter.Value(), nil
+	return NewKVFromIter(iter), nil
 }
 
 // All returns a slice of all the values in the range.
-func (r *Range) All() ([][]byte, error) {
+func (r *Range) All() ([]*KV, error) {
 	iter := r.store.DB.NewIterator(r.store.RO)
 	defer iter.Release()
 
-	values := [][]byte{}
+	values := []*KV{}
 	for ok := iter.Seek(r.Start); ok; ok = iter.Next() {
 		if !r.contains(iter.Key()) {
 			break
 		}
-		value := make([]byte, len(iter.Value()))
-		copy(value, iter.Value())
-		values = append(values, value)
+		values = append(values, NewKVFromIter(iter))
 	}
 
 	return values, iter.Error()

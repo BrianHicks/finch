@@ -25,17 +25,19 @@ func TestRangeFirst(t *testing.T) {
 	store, err := NewInMemory()
 	assert.Nil(t, err)
 
-	key := []byte("test")
-	doc := []byte{1}
+	kv := KV{
+		[]byte("test"),
+		[]byte{1},
+	}
 
-	err = store.DB.Put(key, doc, store.WO)
+	err = store.DB.Put(kv.Key, kv.Value, store.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
-	ret, err := store.Prefix(key).First()
+	ret, err := store.Prefix(kv.Key).First()
 	assert.Nil(t, err)
 
-	assert.Equal(t, doc, ret)
+	assert.Equal(t, &kv, ret)
 
 	// and if there is no such value, error
 	_, err = store.Prefix([]byte("asdf")).First()
@@ -47,19 +49,21 @@ func TestRangeLast(t *testing.T) {
 	store, err := NewInMemory()
 	assert.Nil(t, err)
 
-	key := []byte("test/2")
-	doc := []byte{1}
+	kv := KV{
+		[]byte("test/2"),
+		[]byte{1},
+	}
 
 	err = store.DB.Put([]byte("test/1"), []byte{0}, store.WO)
 	assert.Nil(t, err)
-	err = store.DB.Put(key, doc, store.WO)
+	err = store.DB.Put(kv.Key, kv.Value, store.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
-	ret, err := store.Prefix(key).Last()
+	ret, err := store.Prefix(kv.Key).Last()
 	assert.Nil(t, err)
 
-	assert.Equal(t, doc, ret)
+	assert.Equal(t, &kv, ret)
 
 	// but still if there is no value, error
 	_, err = store.Prefix([]byte("asdf")).Last()
@@ -74,26 +78,28 @@ func TestRangeLastIsFirst(t *testing.T) {
 	store, err := NewInMemory()
 	assert.Nil(t, err)
 
-	key := []byte{2}
-	doc := []byte{1}
+	kv := KV{
+		[]byte{2},
+		[]byte{1},
+	}
 
 	err = store.DB.Put([]byte{1}, []byte{}, store.WO)
 	assert.Nil(t, err)
 	err = store.DB.Put([]byte{3}, []byte{}, store.WO)
 	assert.Nil(t, err)
 
-	err = store.DB.Put(key, doc, store.WO)
+	err = store.DB.Put(kv.Key, kv.Value, store.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
-	lst, err := store.Prefix(key).Last()
+	lst, err := store.Prefix(kv.Key).Last()
 	assert.Nil(t, err)
 
-	fst, err := store.Prefix(key).First()
+	fst, err := store.Prefix(kv.Key).First()
 	assert.Nil(t, err)
 
-	assert.Equal(t, doc, fst)
-	assert.Equal(t, doc, lst)
+	assert.Equal(t, &kv, fst)
+	assert.Equal(t, &kv, lst)
 }
 
 func TestRangeAll(t *testing.T) {
@@ -102,13 +108,17 @@ func TestRangeAll(t *testing.T) {
 	assert.Nil(t, err)
 
 	prefix := byte(1)
-	values := [][]byte{}
+	values := []*KV{}
 
 	for i := byte(1); i < 5; i++ {
-		value := []byte{i}
-		err := store.DB.Put([]byte{prefix, i}, value, store.WO)
+		kv := KV{
+			[]byte{prefix, i},
+			[]byte{i},
+		}
+		err := store.DB.Put(kv.Key, kv.Value, store.WO)
 		assert.Nil(t, err)
-		values = append(values, value)
+
+		values = append(values, &kv)
 	}
 
 	all, err := store.Prefix([]byte{prefix}).All()
