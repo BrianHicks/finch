@@ -14,7 +14,7 @@ var (
 type Range struct {
 	Start []byte
 	Limit []byte
-	db    *DB
+	store *Store
 }
 
 func (r *Range) Contains(target []byte) bool {
@@ -23,7 +23,7 @@ func (r *Range) Contains(target []byte) bool {
 }
 
 func (r *Range) First() ([]byte, error) {
-	iter := r.db.NewIterator(r.db.RO)
+	iter := r.store.DB.NewIterator(r.store.RO)
 	defer iter.Release()
 
 	iter.Seek(r.Start)
@@ -36,7 +36,7 @@ func (r *Range) First() ([]byte, error) {
 }
 
 func (r *Range) Last() ([]byte, error) {
-	iter := r.db.NewIterator(r.db.RO)
+	iter := r.store.DB.NewIterator(r.store.RO)
 	defer iter.Release()
 
 	iter.Seek(r.Limit)
@@ -50,7 +50,7 @@ func (r *Range) Last() ([]byte, error) {
 }
 
 func (r *Range) All() ([][]byte, error) {
-	iter := r.db.NewIterator(r.db.RO)
+	iter := r.store.DB.NewIterator(r.store.RO)
 	defer iter.Release()
 
 	values := [][]byte{}

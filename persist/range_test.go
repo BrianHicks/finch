@@ -21,47 +21,47 @@ func TestRangeContains(t *testing.T) {
 
 func TestRangeFirst(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
 	key := []byte("test")
 	doc := []byte{1}
 
-	err = db.Put(key, doc, db.WO)
+	err = store.DB.Put(key, doc, store.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
-	ret, err := db.Prefix(key).First()
+	ret, err := store.Prefix(key).First()
 	assert.Nil(t, err)
 
 	assert.Equal(t, doc, ret)
 
 	// and if there is no such value, error
-	_, err = db.Prefix([]byte("asdf")).First()
+	_, err = store.Prefix([]byte("asdf")).First()
 	assert.Equal(t, ErrNoResult, err)
 }
 
 func TestRangeLast(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
 	key := []byte("test/2")
 	doc := []byte{1}
 
-	err = db.Put([]byte("test/1"), []byte{0}, db.WO)
+	err = store.DB.Put([]byte("test/1"), []byte{0}, store.WO)
 	assert.Nil(t, err)
-	err = db.Put(key, doc, db.WO)
+	err = store.DB.Put(key, doc, store.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
-	ret, err := db.Prefix(key).Last()
+	ret, err := store.Prefix(key).Last()
 	assert.Nil(t, err)
 
 	assert.Equal(t, doc, ret)
 
 	// but still if there is no value, error
-	_, err = db.Prefix([]byte("asdf")).Last()
+	_, err = store.Prefix([]byte("asdf")).Last()
 	assert.Equal(t, ErrNoResult, err)
 }
 
@@ -70,25 +70,25 @@ func TestRangeLast(t *testing.T) {
 // returns the right one.
 func TestRangeLastIsFirst(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
 	key := []byte{2}
 	doc := []byte{1}
 
-	err = db.Put([]byte{1}, []byte{}, db.WO)
+	err = store.DB.Put([]byte{1}, []byte{}, store.WO)
 	assert.Nil(t, err)
-	err = db.Put([]byte{3}, []byte{}, db.WO)
+	err = store.DB.Put([]byte{3}, []byte{}, store.WO)
 	assert.Nil(t, err)
 
-	err = db.Put(key, doc, db.WO)
+	err = store.DB.Put(key, doc, store.WO)
 	assert.Nil(t, err)
 
 	// get the value back out?
-	lst, err := db.Prefix(key).Last()
+	lst, err := store.Prefix(key).Last()
 	assert.Nil(t, err)
 
-	fst, err := db.Prefix(key).First()
+	fst, err := store.Prefix(key).First()
 	assert.Nil(t, err)
 
 	assert.Equal(t, doc, fst)
@@ -97,7 +97,7 @@ func TestRangeLastIsFirst(t *testing.T) {
 
 func TestRangeAll(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
 	prefix := byte(1)
@@ -105,12 +105,12 @@ func TestRangeAll(t *testing.T) {
 
 	for i := byte(1); i < 5; i++ {
 		value := []byte{i}
-		err := db.Put([]byte{prefix, i}, value, db.WO)
+		err := store.DB.Put([]byte{prefix, i}, value, store.WO)
 		assert.Nil(t, err)
 		values = append(values, value)
 	}
 
-	all, err := db.Prefix([]byte{prefix}).All()
+	all, err := store.Prefix([]byte{prefix}).All()
 
 	assert.Nil(t, err)
 	assert.Equal(t, values, all)

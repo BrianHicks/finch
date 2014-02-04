@@ -8,58 +8,63 @@ import (
 )
 
 // DB wraps a LevelDB instance and sets sane defaults
-type DB struct {
-	*leveldb.DB
+type Store struct {
+	DB *leveldb.DB
 	WO *opt.WriteOptions
 	RO *opt.ReadOptions
 }
 
 // newDB takes a storage and returns DB instance
-func New(store storage.Storage) (*DB, error) {
-	db := new(DB)
+func New(storage storage.Storage) (*Store, error) {
+	store := new(Store)
 
 	// Open the Database with the provided Storage
 	options := &opt.Options{
 		Filter: filter.NewBloomFilter(15),
 	}
-	DB, err := leveldb.Open(store, options)
+	DB, err := leveldb.Open(storage, options)
 	if err != nil {
-		return db, err
+		return store, err
 	}
-	db.DB = DB
+	store.DB = DB
 
 	// Set default read and write options
-	db.WO = &opt.WriteOptions{
+	store.WO = &opt.WriteOptions{
 		Sync: true,
 	}
-	db.RO = &opt.ReadOptions{
+	store.RO = &opt.ReadOptions{
 		DontFillCache: false,
 	}
 
-	return db, nil
+	return store, nil
 }
 
-func NewFile(fname string) (*DB, error) {
-	store, err := storage.OpenFile(fname)
+func NewFile(fname string) (*Store, error) {
+	storage, err := storage.OpenFile(fname)
 	if err != nil {
-		return new(DB), err
+		return new(Store), err
 	}
-	return New(store)
+	return New(storage)
 }
 
-func NewInMemory() (*DB, error) {
+func NewInMemory() (*Store, error) {
 	return New(storage.NewMemStorage())
 }
 
-func (db *DB) Range(start, end []byte) *Range {
+func (store *Store) Close() {
+	store.DB.Close()
+	store.DB = nil
+}
+
+func (store *Store) Range(start, end []byte) *Range {
 	return &Range{
 		Start: start,
 		Limit: end,
-		db:    db,
+		store: store,
 	}
 }
 
-func (db *DB) Prefix(start []byte) *Range {
+func (store *Store) Prefix(start []byte) *Range {
 	end := make([]byte, len(start))
 	size := copy(end, start)
 
@@ -68,6 +73,6 @@ func (db *DB) Prefix(start []byte) *Range {
 	return &Range{
 		Start: start,
 		Limit: end,
-		db:    db,
+		store: store,
 	}
 }

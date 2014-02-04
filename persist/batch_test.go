@@ -43,7 +43,7 @@ func TestLoggedOperationSerialize(t *testing.T) {
 
 func TestLoggedBatchPut(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
 	key := []byte{1}
@@ -52,16 +52,16 @@ func TestLoggedBatchPut(t *testing.T) {
 	batch := LoggedBatch{&leveldb.Batch{}}
 	batch.Put(key, value)
 
-	err = db.Write(batch.Batch, db.WO)
+	err = store.DB.Write(batch.Batch, store.WO)
 	assert.Nil(t, err)
 
 	// check document
-	doc, err := db.Get(key, db.RO)
+	doc, err := store.DB.Get(key, store.RO)
 	assert.Nil(t, err)
 	assert.Equal(t, value, doc)
 
 	// check log
-	iter := db.NewIterator(db.RO)
+	iter := store.DB.NewIterator(store.RO)
 	ok := iter.Seek([]byte("_log/"))
 	assert.True(t, ok)
 	assert.True(t, strings.Contains(string(iter.Key()), "_log/"))
@@ -70,7 +70,7 @@ func TestLoggedBatchPut(t *testing.T) {
 
 func TestLoggedBatchDelete(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
 	key := []byte{1}
@@ -78,15 +78,15 @@ func TestLoggedBatchDelete(t *testing.T) {
 	batch := LoggedBatch{&leveldb.Batch{}}
 	batch.Delete(key)
 
-	err = db.Write(batch.Batch, db.WO)
+	err = store.DB.Write(batch.Batch, store.WO)
 	assert.Nil(t, err)
 
 	// check document
-	_, err = db.Get(key, db.RO)
+	_, err = store.DB.Get(key, store.RO)
 	assert.NotNil(t, err)
 
 	// check log
-	iter := db.NewIterator(db.RO)
+	iter := store.DB.NewIterator(store.RO)
 	ok := iter.Seek([]byte("_log/"))
 	assert.True(t, ok)
 	assert.True(t, strings.Contains(string(iter.Key()), "_log/"))

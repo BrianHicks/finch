@@ -9,11 +9,11 @@ import (
 
 func TestFileLifecycle(t *testing.T) {
 	name := "_taskdb_lifecycle"
-	db, err := NewFile(name)
+	store, err := NewFile(name)
 	assert.Nil(t, err)
 	defer os.RemoveAll(name)
 
-	db.Close()
+	store.Close()
 }
 
 // TestMemory just to make sure we don't cause panics or anything. It shouldn't
@@ -26,24 +26,24 @@ func TestMemory(t *testing.T) {
 
 func TestRange(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
-	r := db.Range([]byte("start"), []byte("end"))
+	r := store.Range([]byte("start"), []byte("end"))
 
 	assert.Equal(t, r.Start, []byte("start"))
 	assert.Equal(t, r.Limit, []byte("end"))
-	assert.Equal(t, r.db, db)
+	assert.Equal(t, r.store, store)
 }
 
 func TestPrefixRange(t *testing.T) {
 	t.Parallel()
-	db, err := NewInMemory()
+	store, err := NewInMemory()
 	assert.Nil(t, err)
 
-	r := db.Prefix([]byte{0, 1})
+	r := store.Prefix([]byte{0, 1})
 
 	assert.Equal(t, r.Start, []byte{0, 1})
 	assert.Equal(t, r.Limit, []byte{0, 2})
-	assert.Equal(t, r.db, db)
+	assert.Equal(t, r.store, store)
 }
