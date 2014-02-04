@@ -2,6 +2,7 @@ package persist
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/syndtr/goleveldb/leveldb"
 
 	"testing"
 )
@@ -14,9 +15,9 @@ func TestRangeContains(t *testing.T) {
 		Limit: []byte{3},
 	}
 
-	assert.True(t, r.Contains([]byte{1}))
-	assert.True(t, r.Contains([]byte{2}))
-	assert.False(t, r.Contains([]byte{3}))
+	assert.True(t, r.contains([]byte{1}))
+	assert.True(t, r.contains([]byte{2}))
+	assert.False(t, r.contains([]byte{3}))
 }
 
 func TestRangeFirst(t *testing.T) {
@@ -38,7 +39,7 @@ func TestRangeFirst(t *testing.T) {
 
 	// and if there is no such value, error
 	_, err = store.Prefix([]byte("asdf")).First()
-	assert.Equal(t, ErrNoResult, err)
+	assert.Equal(t, leveldb.ErrNotFound, err)
 }
 
 func TestRangeLast(t *testing.T) {
@@ -62,7 +63,7 @@ func TestRangeLast(t *testing.T) {
 
 	// but still if there is no value, error
 	_, err = store.Prefix([]byte("asdf")).Last()
-	assert.Equal(t, ErrNoResult, err)
+	assert.Equal(t, leveldb.ErrNotFound, err)
 }
 
 // There's a special case where calling Last should get the First value (if
