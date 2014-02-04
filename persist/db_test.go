@@ -2,6 +2,7 @@ package persist
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/syndtr/goleveldb/leveldb"
 
 	"os"
 	"testing"
@@ -46,4 +47,73 @@ func TestPrefixRange(t *testing.T) {
 	assert.Equal(t, r.Start, []byte{0, 1})
 	assert.Equal(t, r.Limit, []byte{0, 2})
 	assert.Equal(t, r.store, store)
+}
+
+func TestWrite(t *testing.T) {
+	t.Parallel()
+	store, err := NewInMemory()
+	assert.Nil(t, err)
+
+	key := []byte{0}
+	value := []byte{1}
+
+	batch := new(leveldb.Batch)
+	batch.Put(key, value)
+
+	err = store.Write(batch)
+	assert.Nil(t, err)
+
+	out, err := store.DB.Get(key, store.RO)
+	assert.Nil(t, err)
+	assert.Equal(t, value, out)
+}
+
+func TestPut(t *testing.T) {
+	t.Parallel()
+	store, err := NewInMemory()
+	assert.Nil(t, err)
+
+	key := []byte{0}
+	value := []byte{1}
+
+	err = store.Put(key, value)
+	assert.Nil(t, err)
+
+	out, err := store.DB.Get(key, store.RO)
+	assert.Nil(t, err)
+	assert.Equal(t, value, out)
+}
+
+func TestDelete(t *testing.T) {
+	t.Parallel()
+	store, err := NewInMemory()
+	assert.Nil(t, err)
+
+	key := []byte{0}
+	value := []byte{1}
+
+	err = store.DB.Put(key, value, store.WO)
+	assert.Nil(t, err)
+
+	err = store.Delete(key)
+	assert.Nil(t, err)
+
+	_, err = store.DB.Get(key, store.RO)
+	assert.NotNil(t, err)
+}
+
+func TestGet(t *testing.T) {
+	t.Parallel()
+	store, err := NewInMemory()
+	assert.Nil(t, err)
+
+	key := []byte{0}
+	value := []byte{1}
+
+	err = store.DB.Put(key, value, store.WO)
+	assert.Nil(t, err)
+
+	out, err := store.Get(key)
+	assert.Nil(t, err)
+	assert.Equal(t, value, out)
 }

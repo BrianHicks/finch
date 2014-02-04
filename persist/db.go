@@ -56,6 +56,26 @@ func (store *Store) Close() {
 	store.DB = nil
 }
 
+func (store *Store) Write(batch *leveldb.Batch) error {
+	return store.DB.Write(batch, store.WO)
+}
+
+func (store *Store) Put(key, value []byte) error {
+	batch := LoggedBatch{new(leveldb.Batch)}
+	batch.Put(key, value)
+	return store.Write(batch.Batch)
+}
+
+func (store *Store) Delete(key []byte) error {
+	batch := LoggedBatch{new(leveldb.Batch)}
+	batch.Delete(key)
+	return store.Write(batch.Batch)
+}
+
+func (store *Store) Get(key []byte) ([]byte, error) {
+	return store.DB.Get(key, store.RO)
+}
+
 func (store *Store) Range(start, end []byte) *Range {
 	return &Range{
 		Start: start,
