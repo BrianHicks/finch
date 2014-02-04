@@ -1,15 +1,11 @@
 package persist
 
 import (
+	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/vmihailenco/msgpack"
 
 	"time"
 )
-
-type PutDeleter interface {
-	Put([]byte, []byte) error
-	Delete([]byte) error
-}
 
 type LoggedOperation struct {
 	Operation string
@@ -36,7 +32,7 @@ func (lo *LoggedOperation) Serialize() ([]byte, error) {
 }
 
 type LoggedBatch struct {
-	Batch PutDeleter
+	Batch *leveldb.Batch
 }
 
 func (lb *LoggedBatch) Put(key, value []byte) error {

@@ -2,8 +2,9 @@ package persist
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/vmihailenco/msgpack"
+	"strings"
 
 	"testing"
 	"time"
@@ -40,60 +41,54 @@ func TestLoggedOperationSerialize(t *testing.T) {
 	assert.Equal(t, packed, serialized)
 }
 
-type MockedBatch struct {
-	mock.Mock
-}
-
-func (m *MockedBatch) Put(key, value []byte) error {
-	// only compare the first 30 bytes of value since timestamps differ and
-	// that's always at the end.
-	if len(value) > 30 {
-		value = value[:30]
-	}
-	args := m.Mock.Called(key, value)
-	return args.Error(0)
-}
-
-func (m *MockedBatch) Delete(key []byte) error {
-	args := m.Mock.Called(key)
-	return args.Error(0)
-}
-
 func TestLoggedBatchPut(t *testing.T) {
 	t.Parallel()
+	db, err := NewInMemory()
+	assert.Nil(t, err)
 
 	key := []byte{1}
 	value := []byte{2}
 
-	logged := NewLoggedOperation("PUT", key, value)
-	szd, err := logged.Serialize()
-	assert.Nil(t, err)
-
-	mockBatch := new(MockedBatch)
-	mockBatch.On("Put", key, value).Return(nil)
-	mockBatch.On("Put", logged.LogKey(), szd[:30]).Return(nil)
-
-	batch := LoggedBatch{mockBatch}
+	batch := LoggedBatch{&leveldb.Batch{}}
 	batch.Put(key, value)
 
-	mockBatch.Mock.AssertExpectations(t)
+	err = db.Write(batch.Batch, db.WO)
+	assert.Nil(t, err)
+
+	// check document
+	doc, err := db.Get(key, db.RO)
+	assert.Nil(t, err)
+	assert.Equal(t, value, doc)
+
+	// check log
+	iter := db.NewIterator(db.RO)
+	ok := iter.Seek([]byte("_log/"))
+	assert.True(t, ok)
+	assert.True(t, strings.Contains(string(iter.Key()), "_log/"))
+	assert.True(t, strings.Contains(string(iter.Value()), "PUT"))
 }
 
 func TestLoggedBatchDelete(t *testing.T) {
 	t.Parallel()
+	db, err := NewInMemory()
+	assert.Nil(t, err)
 
 	key := []byte{1}
 
-	logged := NewLoggedOperation("DELETE", key, nil)
-	szd, err := logged.Serialize()
-	assert.Nil(t, err)
-
-	mockBatch := new(MockedBatch)
-	mockBatch.On("Delete", key).Return(nil)
-	mockBatch.On("Put", logged.LogKey(), szd[:30]).Return(nil)
-
-	batch := LoggedBatch{mockBatch}
+	batch := LoggedBatch{&leveldb.Batch{}}
 	batch.Delete(key)
 
-	mockBatch.Mock.AssertExpectations(t)
+	err = db.Write(batch.Batch, db.WO)
+	assert.Nil(t, err)
+
+	// check document
+	_, err = db.Get(key, db.RO)
+	assert.NotNil(t, err)
+
+	// check log
+	iter := db.NewIterator(db.RO)
+	ok := iter.Seek([]byte("_log/"))
+	assert.True(t, ok)
+	assert.True(t, strings.Contains(string(iter.Key()), "_log/"))
+	assert.True(t, strings.Contains(string(iter.Value()), "DELETE"))
 }
