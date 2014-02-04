@@ -4,10 +4,22 @@ import (
 	commander "code.google.com/p/go-commander"
 	"fmt"
 	"github.com/BrianHicks/finch/core"
+	"os"
 	"strconv"
+	"text/template"
 
 	"log"
 )
+
+var (
+	taskTmpl = template.Must(template.New("task").Parse("{{.Count}}: {{.Task.Description}} {{if .Selected}}(selected){{end}}\n"))
+)
+
+type IterTask struct {
+	Count    int
+	Task     *core.Task
+	Selected bool
+}
 
 func Selector(tdb *core.TaskDB, args []string) ([]*core.Task, error) {
 	tasks, err := tdb.GetPendingTasks()
@@ -20,7 +32,14 @@ func Selector(tdb *core.TaskDB, args []string) ([]*core.Task, error) {
 	if len(args) == 0 {
 		// print tasks so the user can see and select them
 		for i := 0; i < amtTasks; i++ {
-			fmt.Printf("%d: %s\n", i, tasks[i].Description)
+			task := tasks[i]
+			selected, ok := task.Attrs[core.TagSelected]
+
+			err := taskTmpl.Execute(os.Stdout, IterTask{i, task, selected && ok})
+			if err != nil {
+				break
+				fmt.Printf("Error: %s", err.Error())
+			}
 		}
 
 		return []*core.Task{}, nil
