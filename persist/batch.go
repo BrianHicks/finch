@@ -45,6 +45,12 @@ type LoggedBatch struct {
 	Batch *leveldb.Batch
 }
 
+// NewLoggedBatch instantiates a new LoggedBatch object with the appropriate
+// leveldb.Batch inside it.
+func NewLoggedBatch() *LoggedBatch {
+	return &LoggedBatch{new(leveldb.Batch)}
+}
+
 // Put adds the key and value to the batch operation, and logs them
 func (lb *LoggedBatch) Put(key, value []byte) error {
 	op := NewLoggedOperation("PUT", key, value)
