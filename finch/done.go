@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func MarkDone(tdb *core.TaskDB, args []string) (*core.Task, error) {
+func MarkDone(tdb *core.TaskStore, args []string) (*core.Task, error) {
 	task, err := tdb.GetNextSelected()
 	if err != nil {
 		return task, err
@@ -32,8 +32,8 @@ var Done *commander.Command = &commander.Command{
 	Short:     "mark current task as done",
 	Long:      `mark the current task (from "next") as done. If you're not actually *done* with this task, use "delay"`,
 	Run: func(cmd *commander.Command, args []string) {
-		tdb, err := getTaskDB()
-		defer tdb.Close()
+		tdb, err := getTaskStore()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}

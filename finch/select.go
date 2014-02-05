@@ -21,7 +21,7 @@ type IterTask struct {
 	Selected bool
 }
 
-func Selector(tdb *core.TaskDB, args []string) ([]*core.Task, error) {
+func Selector(tdb *core.TaskStore, args []string) ([]*core.Task, error) {
 	tasks, err := tdb.GetPendingTasks()
 	if err != nil {
 		return tasks, err
@@ -93,8 +93,8 @@ Selected tasks will be marked as such, then you should complete them in the
 To select tasks, call "select" once to view a list of tasks. Then you can run
 "select" with the numbers of the tasks you want to select them.`,
 	Run: func(cmd *commander.Command, args []string) {
-		tdb, err := getTaskDB()
-		defer tdb.Close()
+		tdb, err := getTaskStore()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}

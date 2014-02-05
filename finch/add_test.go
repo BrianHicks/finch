@@ -18,7 +18,7 @@ func TestAdd(t *testing.T) {
 func TestAdder(t *testing.T) {
 	os.Setenv("FINCH_STORAGE", "mem")
 
-	tdb, err := getTaskDB()
+	tdb, err := getTaskStore()
 	assert.Nil(t, err)
 
 	task, err := Adder(tdb, []string{"test"})

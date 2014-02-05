@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-func Delayer(tdb *core.TaskDB, args []string) (*core.Task, error) {
+func Delayer(tdb *core.TaskStore, args []string) (*core.Task, error) {
 	task, err := tdb.GetNextSelected()
 	if err != nil {
 		return task, err
@@ -34,8 +34,8 @@ var Delay *commander.Command = &commander.Command{
 
 This will re-enter this task at the end of the database.`,
 	Run: func(cmd *commander.Command, args []string) {
-		tdb, err := getTaskDB()
-		defer tdb.Close()
+		tdb, err := getTaskStore()
+		defer tdb.Store.Close()
 		if err != nil {
 			log.Fatalf("Error opening Task database: %s\n", err)
 		}

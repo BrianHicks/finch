@@ -1,13 +1,9 @@
 package core
 
 import (
-	"bytes"
 	"errors"
 
-	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/syndtr/goleveldb/leveldb/filter"
-	"github.com/syndtr/goleveldb/leveldb/iterator"
-	"github.com/syndtr/goleveldb/leveldb/opt"
+	"github.com/BrianHicks/finch/persist"
 	"github.com/syndtr/goleveldb/leveldb/storage"
 )
 
@@ -16,47 +12,30 @@ var (
 	ErrNoTask = errors.New("no such task")
 )
 
-// TaskDB wraps a LevelDB instance and sets sane defaults for Finch's usage.
-type TaskDB struct {
-	DB *leveldb.DB
-	wo *opt.WriteOptions
-	ro *opt.ReadOptions
+// TaskStore wraps a persist.Store instance. TaskStore is only concerned with
+// handling tasks, not underlying DB open and close (though historically it
+// has, such as in NewTaskStore.) This means that when you're done with
+// TaskStore, discard it however you feel necessary. But when you're done with
+// the underlying Store, call Close on it directly.
+type TaskStore struct {
+	Store *persist.Store
 }
 
-// NewTaskDB takes a storage and returns TaskDB instance
-func NewTaskDB(store storage.Storage) (*TaskDB, error) {
-	tdb := new(TaskDB)
+// NewTaskStore takes a storage and returns TaskStore instance
+func NewTaskStore(storage storage.Storage) (*TaskStore, error) {
+	ts := new(TaskStore)
 
-	// Open the Database with the provided Storage
-	options := &opt.Options{
-		Filter: filter.NewBloomFilter(15),
-	}
-	DB, err := leveldb.Open(store, options)
+	store, err := persist.New(storage)
 	if err != nil {
-		return tdb, err
+		return ts, err
 	}
-	tdb.DB = DB
+	ts.Store = store
 
-	// Set default read and write options
-	tdb.wo = &opt.WriteOptions{
-		Sync: true,
-	}
-	tdb.ro = &opt.ReadOptions{
-		DontFillCache: false,
-	}
-
-	return tdb, nil
-}
-
-// Close should be called on a TaskDB to end it's lifecycle. The DB should not
-// be used after this is called.
-func (tdb *TaskDB) Close() {
-	tdb.DB.Close()
-	tdb.DB = nil
+	return ts, nil
 }
 
 // batchWriteTask makes sure that a task is completely written to the database
-func (tdb *TaskDB) batchWriteTask(batch *leveldb.Batch, task *Task) error {
+func (ts *TaskStore) batchWriteTask(batch *persist.LoggedBatch, task *Task) error {
 	szd, err := task.Serialize()
 	if err != nil {
 		return err
@@ -78,18 +57,18 @@ func (tdb *TaskDB) batchWriteTask(batch *leveldb.Batch, task *Task) error {
 
 // PutTasks inserts tasks into the database and overwrites those which
 // already exist
-func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
-	batch := new(leveldb.Batch)
+func (ts *TaskStore) PutTasks(tasks ...*Task) error {
+	batch := persist.NewLoggedBatch()
 
 	for i := 0; i < len(tasks); i++ {
 		task := tasks[i]
-		err := tdb.batchWriteTask(batch, task)
+		err := ts.batchWriteTask(batch, task)
 		if err != nil {
 			return err
 		}
 	}
 
-	if err := tdb.DB.Write(batch, tdb.wo); err != nil {
+	if err := ts.Store.Write(batch.Batch); err != nil {
 		return err
 	}
 
@@ -101,47 +80,20 @@ func (tdb *TaskDB) PutTasks(tasks ...*Task) error {
 //
 // Currently, that means if you change Task.Timestamp or Task.ID you need to use
 // this or old data will always show up.
-func (tdb *TaskDB) MoveTask(oldKey *Key, task *Task) error {
-	batch := new(leveldb.Batch)
+func (ts *TaskStore) MoveTask(oldKey *Key, task *Task) error {
+	batch := persist.NewLoggedBatch()
 
 	batch.Delete(oldKey.Serialize(TasksIndex))
 	for prefix := range task.Attrs {
 		batch.Delete(oldKey.Serialize(prefix))
 	}
 
-	err := tdb.batchWriteTask(batch, task)
+	err := ts.batchWriteTask(batch, task)
 	if err != nil {
 		return err
 	}
 
-	if err := tdb.DB.Write(batch, tdb.wo); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// IterateOver takes an index (as prefix) to iterate over and a callback. For
-// each iteration, cb will be called with the current value of the Iterator,
-// and if cb returns a non-nil error that will bubble up to return from this
-// function. Errors from the iterator will also be returned.
-func (tdb *TaskDB) IterateOver(prefix string, cb func(iterator.Iterator) error) error {
-	prefixBytes := []byte(prefix)
-
-	iter := tdb.DB.NewIterator(tdb.ro)
-	defer iter.Release()
-
-	for ok := iter.Seek(prefixBytes); ok; ok = iter.Next() {
-		if !bytes.HasPrefix(iter.Key(), prefixBytes) {
-			break
-		}
-
-		if err := cb(iter); err != nil {
-			return err
-		}
-	}
-
-	if err := iter.Error(); err != nil {
+	if err := ts.Store.Write(batch.Batch); err != nil {
 		return err
 	}
 
@@ -150,29 +102,33 @@ func (tdb *TaskDB) IterateOver(prefix string, cb func(iterator.Iterator) error) 
 
 // TasksForIndex returns a list of tasks that match an arbitrary index
 // (as string)
-func (tdb *TaskDB) TasksForIndex(prefix string) ([]*Task, error) {
+func (ts *TaskStore) TasksForIndex(prefix string) ([]*Task, error) {
 	tasks := []*Task{}
-	err := tdb.IterateOver(prefix, func(iter iterator.Iterator) error {
-		key, err := DeserializeKey(iter.Key())
+
+	raw, err := ts.Store.Prefix([]byte(prefix)).All()
+	if err != nil {
+		return tasks, err
+	}
+
+	for i := 0; i < len(raw); i++ {
+		key, err := DeserializeKey(raw[i].Key)
 		if err != nil {
-			return err
+			return tasks, err
 		}
 
-		task, err := tdb.GetTask(key)
+		task, err := ts.GetTask(key)
 		if err != nil {
-			return err
+			return tasks, err
 		}
 		tasks = append(tasks, task)
-
-		return nil
-	})
+	}
 
 	return tasks, err
 }
 
 // getTaskRaw gets a task from a byteslice
-func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
-	szd, err := tdb.DB.Get(key, tdb.ro)
+func (ts *TaskStore) getTaskRaw(key []byte) (*Task, error) {
+	szd, err := ts.Store.Get(key)
 	if len(szd) == 0 {
 		return new(Task), ErrNoTask
 	}
@@ -185,19 +141,19 @@ func (tdb *TaskDB) getTaskRaw(key []byte) (*Task, error) {
 }
 
 // GetTask gets a single task by Key
-func (tdb *TaskDB) GetTask(key *Key) (*Task, error) {
-	return tdb.getTaskRaw(key.Serialize(TasksIndex))
+func (ts *TaskStore) GetTask(key *Key) (*Task, error) {
+	return ts.getTaskRaw(key.Serialize(TasksIndex))
 }
 
 // GetPendingTasks returns a list of pending tasks
-func (tdb *TaskDB) GetPendingTasks() ([]*Task, error) {
-	return tdb.TasksForIndex(TagPending)
+func (ts *TaskStore) GetPendingTasks() ([]*Task, error) {
+	return ts.TasksForIndex(TagPending)
 }
 
 // GetSelectedTasks returns a list of currently selected tasks in
 // newest-to-oldest order
-func (tdb *TaskDB) GetSelectedTasks() ([]*Task, error) {
-	tasks, err := tdb.TasksForIndex(TagSelected)
+func (ts *TaskStore) GetSelectedTasks() ([]*Task, error) {
+	tasks, err := ts.TasksForIndex(TagSelected)
 	if err != nil {
 		return tasks, err
 	}
@@ -210,8 +166,8 @@ func (tdb *TaskDB) GetSelectedTasks() ([]*Task, error) {
 }
 
 // GetNextSelected returns the next (most recent) selected Task
-func (tdb *TaskDB) GetNextSelected() (*Task, error) {
-	tasks, err := tdb.GetSelectedTasks()
+func (ts *TaskStore) GetNextSelected() (*Task, error) {
+	tasks, err := ts.GetSelectedTasks()
 	if err != nil {
 		return new(Task), err
 	}

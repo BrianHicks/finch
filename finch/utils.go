@@ -11,11 +11,11 @@ import (
 
 // getStorage takes the FINCH_STORAGE environment variable into account. If
 // it's "mem", this will return an in-memory database. If that's not true,
-// it'll return an instantiated TaskDB instance.
-func getTaskDB() (*core.TaskDB, error) {
+// it'll return an instantiated TaskStore instance.
+func getTaskStore() (*core.TaskStore, error) {
 	dbPath := os.Getenv("FINCH_STORAGE")
 	if dbPath == "mem" {
-		return core.NewTaskDB(storage.NewMemStorage())
+		return core.NewTaskStore(storage.NewMemStorage())
 	}
 
 	if dbPath == "" {
@@ -25,10 +25,10 @@ func getTaskDB() (*core.TaskDB, error) {
 
 	store, err := storage.OpenFile(dbPath)
 	if err != nil {
-		return new(core.TaskDB), err
+		return new(core.TaskStore), err
 	}
 
-	tdb, err := core.NewTaskDB(store)
+	tdb, err := core.NewTaskStore(store)
 	if err != nil {
 		return tdb, err
 	}

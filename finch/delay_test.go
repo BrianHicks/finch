@@ -11,7 +11,7 @@ import (
 
 func TestDelayer(t *testing.T) {
 	os.Setenv("CORE_STORAGE", "mem")
-	tdb, err := getTaskDB()
+	tdb, err := getTaskStore()
 	assert.Nil(t, err)
 
 	task := core.NewTask("test", time.Now().Add(-1*(time.Second*30)))

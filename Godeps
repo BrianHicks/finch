@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/brianhicks/finch",
+	"ImportPath": "github.com/BrianHicks/finch",
 	"GoVersion": "go1.2",
 	"Packages": [
 		"./..."
@@ -16,11 +16,11 @@
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
-			"Rev": "18d938d6c56bd5ef67647415d7d62a838d703b68"
+			"Rev": "9cc77fa25329013ce07362c7742952ff887361f2"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/suite",
-			"Rev": "18d938d6c56bd5ef67647415d7d62a838d703b68"
+			"Rev": "9cc77fa25329013ce07362c7742952ff887361f2"
 		},
 		{
 			"ImportPath": "github.com/syndtr/goleveldb/leveldb",
