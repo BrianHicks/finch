@@ -5,20 +5,6 @@ import (
 	"io/ioutil"
 )
 
-type Storage interface {
-	NextID() int
-	Commit() error
-}
-
-type TaskStore interface {
-	Storage
-
-	SaveTask(Task) error
-	GetTask(int) (*Task, error)
-	AllTasks() ([]*Task, error)
-	FilterTasks(func(*Task) bool) ([]*Task, error)
-}
-
 type JSONStore struct {
 	filename string
 	CurID    int
