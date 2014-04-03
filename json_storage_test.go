@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -19,16 +20,20 @@ func TestJSONStoreNextID(t *testing.T) {
 }
 
 func TestJSONStoreCommit(t *testing.T) {
-	j := JSONStore{filename: "test.json", CurID: 0}
 	fname := "test.json"
 	defer os.Remove(fname)
 
-	err := j.Commit()
+	j, err := NewJSONStore(fname)
+	assert.Nil(t, err)
+
+	err = j.Commit()
 	assert.Nil(t, err)
 
 	bytes, err := ioutil.ReadFile(fname)
 	assert.Nil(t, err)
 	assert.True(t, len(bytes) > 0)
+
+	fmt.Println(string(bytes))
 }
 
 func TestJSONStoreImplements(t *testing.T) {
