@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNextID(t *testing.T) {
+func TestJSONStoreNextID(t *testing.T) {
 	t.Parallel()
 
 	j := JSONStore{CurID: 0}
@@ -18,7 +18,7 @@ func TestNextID(t *testing.T) {
 	assert.Equal(t, j.CurID, 1)
 }
 
-func TestCommit(t *testing.T) {
+func TestJSONStoreCommit(t *testing.T) {
 	j := JSONStore{filename: "test.json", CurID: 0}
 	fname := "test.json"
 	defer os.Remove(fname)
@@ -29,4 +29,11 @@ func TestCommit(t *testing.T) {
 	bytes, err := ioutil.ReadFile(fname)
 	assert.Nil(t, err)
 	assert.True(t, len(bytes) > 0)
+}
+
+func TestJSONStoreImplements(t *testing.T) {
+	t.Parallel()
+
+	var _ Storage = new(JSONStore)
+	// var _ TaskStore = new(JSONStore)
 }
