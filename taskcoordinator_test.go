@@ -44,8 +44,8 @@ func TestTaskCoordinatorDelay(t *testing.T) {
 	assert.Equal(t, task.Active, now)
 }
 
-func TestTaskSelect(t *testing.T) {
-	tc := setup(t, "tcdelay.json")
+func TestTaskCoordinatorSelect(t *testing.T) {
+	tc := setup(t, "tcselect.json")
 
 	task, err := tc.Add("test")
 	assert.Nil(t, err)
@@ -58,4 +58,23 @@ func TestTaskSelect(t *testing.T) {
 	err = tc.Select(task.ID)
 	assert.Nil(t, err)
 	assert.True(t, task.Selected)
+}
+
+func TestTaskCoordinatorSelected(t *testing.T) {
+	tc := setup(t, "tcselected.json")
+
+	// no tasks gets an error
+	tasks, err := tc.Selected()
+	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, len(tasks), 0)
+
+	// some selected tasks returns those
+	task, err := tc.Add("test")
+	assert.Nil(t, err)
+
+	task.Selected = true
+
+	tasks, err = tc.Selected()
+	assert.Nil(t, err)
+	assert.Equal(t, tasks, []*Task{task})
 }

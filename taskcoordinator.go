@@ -1,9 +1,12 @@
 package main
 
-import "time"
+import (
+	"sort"
+	"time"
+)
 
 type TaskCoordinator struct {
-	storage MetaTaskStore
+	storage TaskStore
 }
 
 func (tc *TaskCoordinator) Add(desc string) (*Task, error) {
@@ -50,4 +53,16 @@ func (tc *TaskCoordinator) Select(ids ...string) error {
 	tc.storage.SaveTask(tasks...)
 
 	return nil
+}
+
+func (tc *TaskCoordinator) Selected() ([]*Task, error) {
+	tasks, err := tc.storage.FilterTasks(func(t *Task) bool { return t.Selected })
+
+	if len(tasks) == 0 {
+		return tasks, NoSuchTask
+	}
+
+	sort.Sort(ByActive(tasks))
+
+	return tasks, err
 }
