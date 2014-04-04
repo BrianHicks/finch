@@ -66,3 +66,12 @@ func (tc *TaskCoordinator) Selected() ([]*Task, error) {
 
 	return tasks, err
 }
+
+func (tc *TaskCoordinator) NextSelected() (*Task, error) {
+	tasks, err := tc.Selected()
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks[0], nil
+}

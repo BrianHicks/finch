@@ -78,3 +78,21 @@ func TestTaskCoordinatorSelected(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, tasks, []*Task{task})
 }
+
+func TestTaskCoordinatorNextSelected(t *testing.T) {
+	tc := setup(t, "tcnextselected.json")
+
+	// no tasks gets an error
+	notask, err := tc.NextSelected()
+	assert.Equal(t, err, NoSuchTask)
+	assert.Nil(t, notask)
+
+	// some selected tasks returns that one
+	task, err := tc.Add("test")
+	assert.Nil(t, err)
+	task.Selected = true
+
+	task2, err := tc.NextSelected()
+	assert.Nil(t, err)
+	assert.Equal(t, task, task2)
+}
