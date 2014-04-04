@@ -69,6 +69,7 @@ func TestJSONStoreGetTask(t *testing.T) {
 }
 
 func TestJSONStoreFilterTasks(t *testing.T) {
+	t.Parallel()
 	j, err := NewJSONStore("filter.json")
 	assert.Nil(t, err)
 
@@ -102,6 +103,7 @@ func TestJSONStoreFilterTasks(t *testing.T) {
 }
 
 func TestJSONStoreSetMeta(t *testing.T) {
+	t.Parallel()
 	j, err := NewJSONStore("setmeta.json")
 	assert.Nil(t, err)
 
@@ -116,6 +118,7 @@ func TestJSONStoreSetMeta(t *testing.T) {
 }
 
 func TestJSONStoreGetMeta(t *testing.T) {
+	t.Parallel()
 	j, err := NewJSONStore("getmeta.json")
 	assert.Nil(t, err)
 
