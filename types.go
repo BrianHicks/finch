@@ -15,6 +15,7 @@ type Storage interface {
 type TaskStore interface {
 	SaveTask(...*Task) error
 	GetTask(string) (*Task, error)
+	DeleteTask(...string) error
 	FilterTasks(func(*Task) bool) ([]*Task, error)
 }
 

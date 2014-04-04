@@ -101,6 +101,25 @@ func (j *JSONStore) GetTask(id string) (*Task, error) {
 	return task, nil
 }
 
+func (j *JSONStore) DeleteTask(ids ...string) error {
+	// make sure we have all those tasks before we delete them
+	j.taskLock.Lock()
+	defer j.taskLock.Unlock()
+
+	for _, id := range ids {
+		if _, ok := j.Tasks[id]; !ok {
+			return NoSuchTask
+		}
+	}
+
+	// now we know we have all of them, delete!
+	for _, id := range ids {
+		delete(j.Tasks, id)
+	}
+
+	return nil
+}
+
 func (j *JSONStore) FilterTasks(pred func(*Task) bool) ([]*Task, error) {
 	tasks := []*Task{}
 

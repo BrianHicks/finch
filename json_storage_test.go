@@ -102,6 +102,26 @@ func TestJSONStoreFilterTasks(t *testing.T) {
 	assert.Equal(t, []*Task{foo}, result)
 }
 
+func TestJSONStoreDeleteTask(t *testing.T) {
+	t.Parallel()
+
+	j, err := NewJSONStore("delete.json")
+	assert.Nil(t, err)
+
+	task := Task{ID: "foo", Desc: "test"}
+	j.Tasks[task.ID] = &task
+
+	// deleting none is an error
+	err = j.DeleteTask("")
+	assert.Equal(t, err, NoSuchTask)
+
+	// deleting one should work
+	err = j.DeleteTask(task.ID)
+	assert.Nil(t, err)
+	_, ok := j.Tasks[task.ID]
+	assert.False(t, ok)
+}
+
 func TestJSONStoreSetMeta(t *testing.T) {
 	t.Parallel()
 	j, err := NewJSONStore("setmeta.json")

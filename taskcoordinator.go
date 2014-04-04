@@ -84,6 +84,10 @@ func (tc *TaskCoordinator) MarkDone(ids ...string) error {
 	return nil
 }
 
+func (tc *TaskCoordinator) Delete(ids ...string) error {
+	return tc.storage.DeleteTask(ids...)
+}
+
 func (tc *TaskCoordinator) Selected() ([]*Task, error) {
 	tasks, err := tc.storage.FilterTasks(func(t *Task) bool { return t.Selected })
 
