@@ -104,3 +104,19 @@ func (tc *TaskCoordinator) NextSelected() (*Task, error) {
 
 	return tasks[0], nil
 }
+
+func (tc *TaskCoordinator) Available() ([]*Task, error) {
+	now := time.Now()
+	tasks, err := tc.storage.FilterTasks(func(t *Task) bool { return !t.Done && now.After(t.Active) })
+	if err != nil {
+		return tasks, err
+	}
+
+	if len(tasks) == 0 {
+		return tasks, NoSuchTask
+	}
+
+	sort.Sort(ByActive(tasks))
+
+	return tasks, nil
+}

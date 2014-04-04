@@ -112,3 +112,28 @@ func TestTaskCoordinatorNextSelected(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, task, task2)
 }
+
+func TestTaskCoordinatorAvailable(t *testing.T) {
+	tc := setup(t, "tcavailable.json")
+
+	// no available tasks should return an error
+	tasks, err := tc.Available()
+	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, len(tasks), 0)
+
+	// some tasks
+	done, err := tc.Add("done")
+	assert.Nil(t, err)
+	done.Done = true
+
+	future, err := tc.Add("future")
+	assert.Nil(t, err)
+	future.Active = time.Now().Add(time.Second * 30)
+
+	pending, err := tc.Add("pending")
+	assert.Nil(t, err)
+
+	tasks, err = tc.Available()
+	assert.Nil(t, err)
+	assert.Equal(t, []*Task{pending}, tasks)
+}
