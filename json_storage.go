@@ -73,16 +73,18 @@ func (j *JSONStore) Commit() error {
 	return nil
 }
 
-func (j *JSONStore) SaveTask(t *Task) error {
-	// assign the Task an ID if it doesn't have one already
-	if t.ID == "" {
-		t.ID = goremutake.Encode(j.NextID())
-	}
-
+func (j *JSONStore) SaveTask(ts ...*Task) error {
 	j.taskLock.Lock()
 	defer j.taskLock.Unlock()
 
-	j.Tasks[t.ID] = t
+	for _, t := range ts {
+		// assign the Task an ID if it doesn't have one already
+		if t.ID == "" {
+			t.ID = goremutake.Encode(j.NextID())
+		}
+
+		j.Tasks[t.ID] = t
+	}
 
 	return nil
 }

@@ -13,7 +13,7 @@ type Storage interface {
 }
 
 type TaskStore interface {
-	SaveTask(*Task) error
+	SaveTask(...*Task) error
 	GetTask(string) (*Task, error)
 	FilterTasks(func(*Task) bool) ([]*Task, error)
 }
