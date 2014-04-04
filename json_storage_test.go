@@ -66,12 +66,44 @@ func TestJSONStoreGetTask(t *testing.T) {
 	task3, err := j.GetTask("bar")
 	assert.Equal(t, err, NoSuchTask)
 	assert.Nil(t, task3)
+}
 
+func TestJSONStoreFilterTasks(t *testing.T) {
+	j, err := NewJSONStore("filter.json")
+	assert.Nil(t, err)
+
+	foo := &Task{ID: "foo"}
+	bar := &Task{ID: "bar"}
+	j.SaveTask(foo)
+	j.SaveTask(bar)
+
+	// accept everything
+	all := func(t *Task) bool { return true }
+
+	result, err := j.FilterTasks(all)
+	assert.Nil(t, err)
+	in := func(t *testing.T, task *Task, cont []*Task) {
+		for _, x := range cont {
+			if x.ID == task.ID {
+				return
+			}
+		}
+		t.Errorf("Task with id %s not found in %+v", task.ID, cont)
+	}
+	in(t, foo, result)
+	in(t, bar, result)
+
+	// only accept Task with ID "foo"
+	some := func(t *Task) bool { return t.ID == "foo" }
+
+	result, err = j.FilterTasks(some)
+	assert.Nil(t, err)
+	assert.Equal(t, []*Task{foo}, result)
 }
 
 func TestJSONStoreImplements(t *testing.T) {
 	t.Parallel()
 
-	var _ Storage = new(JSONStore)
-	// var _ TaskStore = new(JSONStore)
+	assert.Implements(t, (*Storage)(nil), new(JSONStore))
+	assert.Implements(t, (*TaskStore)(nil), new(JSONStore))
 }

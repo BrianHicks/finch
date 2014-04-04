@@ -27,6 +27,5 @@ type TaskStore interface {
 
 	SaveTask(*Task) error
 	GetTask(string) (*Task, error)
-	AllTasks() ([]*Task, error)
 	FilterTasks(func(*Task) bool) ([]*Task, error)
 }

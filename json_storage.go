@@ -93,3 +93,16 @@ func (j *JSONStore) GetTask(id string) (*Task, error) {
 
 	return task, nil
 }
+
+func (j *JSONStore) FilterTasks(pred func(*Task) bool) ([]*Task, error) {
+	tasks := []*Task{}
+
+	// TODO: this could be parallelized pretty easily
+	for _, t := range j.Tasks {
+		if pred(t) {
+			tasks = append(tasks, t)
+		}
+	}
+
+	return tasks, nil
+}
