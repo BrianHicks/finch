@@ -4,6 +4,7 @@ import "errors"
 
 var (
 	NoSuchTask = errors.New("no such task")
+	NoSuchKey  = errors.New("no such key")
 )
 
 type Storage interface {
@@ -17,4 +18,11 @@ type TaskStore interface {
 	SaveTask(*Task) error
 	GetTask(string) (*Task, error)
 	FilterTasks(func(*Task) bool) ([]*Task, error)
+}
+
+type MetaStore interface {
+	Storage
+
+	SetMeta(string, string) error
+	GetMeta(string) (string, error)
 }

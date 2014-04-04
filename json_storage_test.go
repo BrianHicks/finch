@@ -101,9 +101,42 @@ func TestJSONStoreFilterTasks(t *testing.T) {
 	assert.Equal(t, []*Task{foo}, result)
 }
 
+func TestJSONStoreSetMeta(t *testing.T) {
+	j, err := NewJSONStore("setmeta.json")
+	assert.Nil(t, err)
+
+	k, v := "foo", "bar"
+	err = j.SetMeta(k, v)
+	assert.Nil(t, err)
+
+	// make sure it actually set
+	v2, ok := j.Meta[k]
+	assert.True(t, ok)
+	assert.Equal(t, v, v2)
+}
+
+func TestJSONStoreGetMeta(t *testing.T) {
+	j, err := NewJSONStore("getmeta.json")
+	assert.Nil(t, err)
+
+	k, v := "foo", "bar"
+	j.Meta[k] = v
+
+	// get a value that exists
+	v2, err := j.GetMeta(k)
+	assert.Nil(t, err)
+	assert.Equal(t, v, v2)
+
+	// get a value that doesn't exist
+	_, err = j.GetMeta("whatever")
+	assert.Equal(t, err, NoSuchKey)
+}
+
 func TestJSONStoreImplements(t *testing.T) {
 	t.Parallel()
 
-	assert.Implements(t, (*Storage)(nil), new(JSONStore))
-	assert.Implements(t, (*TaskStore)(nil), new(JSONStore))
+	j := new(JSONStore)
+	assert.Implements(t, (*Storage)(nil), j)
+	assert.Implements(t, (*TaskStore)(nil), j)
+	assert.Implements(t, (*MetaStore)(nil), j)
 }

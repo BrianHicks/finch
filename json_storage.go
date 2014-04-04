@@ -19,19 +19,24 @@ type JSONStore struct {
 
 	Tasks    map[string]*Task `json:"tasks"`
 	taskLock *sync.RWMutex
+
+	Meta     map[string]string `json:"meta"`
+	metaLock *sync.RWMutex
 }
 
 func NewJSONStore(filename string) (*JSONStore, error) {
 	store := &JSONStore{
 		filename: filename,
 		taskLock: new(sync.RWMutex),
-		Tasks:    map[string]*Task{},
+		metaLock: new(sync.RWMutex),
 	}
 
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
 		if perr, ok := err.(*os.PathError); ok {
 			if perr.Err.Error() == ErrNoSuch.Error() {
+				store.Tasks = map[string]*Task{}
+				store.Meta = map[string]string{}
 				return store, nil
 			}
 		}
@@ -105,4 +110,24 @@ func (j *JSONStore) FilterTasks(pred func(*Task) bool) ([]*Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func (j *JSONStore) SetMeta(k, v string) error {
+	j.metaLock.Lock()
+	defer j.metaLock.Unlock()
+
+	j.Meta[k] = v
+	return nil
+}
+
+func (j *JSONStore) GetMeta(k string) (string, error) {
+	j.metaLock.RLock()
+	defer j.metaLock.RUnlock()
+
+	v, ok := j.Meta[k]
+	if !ok {
+		return v, NoSuchKey
+	}
+
+	return v, nil
 }
