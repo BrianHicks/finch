@@ -1,9 +1,6 @@
 package main
 
-import (
-	"errors"
-	"time"
-)
+import "errors"
 
 var (
 	NoSuchTask = errors.New("no such task")
@@ -12,14 +9,6 @@ var (
 type Storage interface {
 	NextID() uint
 	Commit() error
-}
-
-type Task struct {
-	ID       string
-	Desc     string
-	Active   time.Time
-	Done     bool
-	Selected bool
 }
 
 type TaskStore interface {
