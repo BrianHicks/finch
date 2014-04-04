@@ -60,6 +60,22 @@ func TestTaskCoordinatorSelect(t *testing.T) {
 	assert.True(t, task.Selected)
 }
 
+func TestTaskCoordinatorMarkDone(t *testing.T) {
+	tc := setup(t, "tcmarkdone.json")
+
+	task, err := tc.Add("test")
+	assert.Nil(t, err)
+
+	// no ID
+	err = tc.MarkDone("")
+	assert.Equal(t, err, NoSuchTask)
+
+	// with ID
+	err = tc.MarkDone(task.ID)
+	assert.Nil(t, err)
+	assert.True(t, task.Done)
+}
+
 func TestTaskCoordinatorSelected(t *testing.T) {
 	tc := setup(t, "tcselected.json")
 

@@ -46,11 +46,40 @@ func (tc *TaskCoordinator) Select(ids ...string) error {
 		tasks = append(tasks, t)
 	}
 
-	// select all the tasks and save them to the DB
+	// select all the tasks and save them
 	for _, t := range tasks {
 		t.Selected = true
 	}
-	tc.storage.SaveTask(tasks...)
+
+	err := tc.storage.SaveTask(tasks...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tc *TaskCoordinator) MarkDone(ids ...string) error {
+	// make sure we have all the tasks before we perform the operation
+	tasks := []*Task{}
+	for _, id := range ids {
+		t, err := tc.storage.GetTask(id)
+		if err != nil {
+			return err
+		}
+
+		tasks = append(tasks, t)
+	}
+
+	// mark all the tasks done and save them
+	for _, t := range tasks {
+		t.MarkDone()
+	}
+
+	err := tc.storage.SaveTask(tasks...)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
