@@ -43,3 +43,19 @@ func TestTaskCoordinatorDelay(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, task.Active, now)
 }
+
+func TestTaskSelect(t *testing.T) {
+	tc := setup(t, "tcdelay.json")
+
+	task, err := tc.Add("test")
+	assert.Nil(t, err)
+
+	// no ID
+	err = tc.Select("")
+	assert.Equal(t, err, NoSuchTask)
+
+	// with ID
+	err = tc.Select(task.ID)
+	assert.Nil(t, err)
+	assert.True(t, task.Selected)
+}
