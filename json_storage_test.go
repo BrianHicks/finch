@@ -139,4 +139,5 @@ func TestJSONStoreImplements(t *testing.T) {
 	assert.Implements(t, (*Storage)(nil), j)
 	assert.Implements(t, (*TaskStore)(nil), j)
 	assert.Implements(t, (*MetaStore)(nil), j)
+	assert.Implements(t, (*MetaTaskStore)(nil), j)
 }

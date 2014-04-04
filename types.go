@@ -13,16 +13,19 @@ type Storage interface {
 }
 
 type TaskStore interface {
-	Storage
-
 	SaveTask(*Task) error
 	GetTask(string) (*Task, error)
 	FilterTasks(func(*Task) bool) ([]*Task, error)
 }
 
 type MetaStore interface {
-	Storage
-
 	SetMeta(string, string) error
 	GetMeta(string) (string, error)
+}
+
+type MetaTaskStore interface {
+	Storage
+
+	TaskStore
+	MetaStore
 }
