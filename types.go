@@ -3,15 +3,14 @@ package main
 import "time"
 
 type Storage interface {
-	NextID() int
+	NextID() uint
 	Commit() error
 }
 
 type Task struct {
-	ID       int
+	ID       string
 	Desc     string
-	Added    time.Time
-	Delay    time.Time
+	Active   time.Time
 	Done     bool
 	Selected bool
 }
@@ -19,7 +18,7 @@ type Task struct {
 type TaskStore interface {
 	Storage
 
-	SaveTask(Task) error
+	SaveTask(*Task) error
 	GetTask(int) (*Task, error)
 	AllTasks() ([]*Task, error)
 	FilterTasks(func(*Task) bool) ([]*Task, error)

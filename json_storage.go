@@ -5,18 +5,28 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"sync"
+
+	"github.com/cryptix/goremutake"
 )
 
 var ErrNoSuch = errors.New("no such file or directory")
 
 type JSONStore struct {
-	filename string           `json:"-"`
-	CurID    int              `json:"cur_id"`
+	filename string
+
+	CurID uint `json:"cur_id"`
+
 	Tasks    map[string]*Task `json:"tasks"`
+	taskLock *sync.RWMutex
 }
 
 func NewJSONStore(filename string) (*JSONStore, error) {
-	store := &JSONStore{filename: filename}
+	store := &JSONStore{
+		filename: filename,
+		taskLock: new(sync.RWMutex),
+		Tasks:    map[string]*Task{},
+	}
 
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -36,12 +46,15 @@ func NewJSONStore(filename string) (*JSONStore, error) {
 	return store, nil
 }
 
-func (j *JSONStore) NextID() int {
+func (j *JSONStore) NextID() uint {
 	j.CurID += 1
 	return j.CurID
 }
 
 func (j *JSONStore) Commit() error {
+	j.taskLock.Lock()
+	defer j.taskLock.Unlock()
+
 	bytes, err := json.Marshal(j)
 	if err != nil {
 		return err
@@ -51,6 +64,20 @@ func (j *JSONStore) Commit() error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (j *JSONStore) SaveTask(t *Task) error {
+	// assign the Task an ID if it doesn't have one already
+	if t.ID == "" {
+		t.ID = goremutake.Encode(j.NextID())
+	}
+
+	j.taskLock.Lock()
+	defer j.taskLock.Unlock()
+
+	j.Tasks[t.ID] = t
 
 	return nil
 }

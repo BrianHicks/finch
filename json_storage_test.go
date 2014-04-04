@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -15,8 +14,8 @@ func TestJSONStoreNextID(t *testing.T) {
 	j := JSONStore{CurID: 0}
 
 	i := j.NextID()
-	assert.Equal(t, i, 1)
-	assert.Equal(t, j.CurID, 1)
+	assert.Equal(t, i, uint(1))
+	assert.Equal(t, j.CurID, uint(1))
 }
 
 func TestJSONStoreCommit(t *testing.T) {
@@ -32,8 +31,21 @@ func TestJSONStoreCommit(t *testing.T) {
 	bytes, err := ioutil.ReadFile(fname)
 	assert.Nil(t, err)
 	assert.True(t, len(bytes) > 0)
+}
 
-	fmt.Println(string(bytes))
+func TestJSONStoreSaveTask(t *testing.T) {
+	t.Parallel()
+
+	j, err := NewJSONStore("save.json")
+	assert.Nil(t, err)
+	task := Task{}
+
+	err = j.SaveTask(&task)
+	assert.Nil(t, err)
+	assert.NotEqual(t, task.ID, "")
+
+	task2 := j.Tasks[task.ID]
+	assert.Equal(t, task.ID, task2.ID)
 }
 
 func TestJSONStoreImplements(t *testing.T) {
