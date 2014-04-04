@@ -81,3 +81,15 @@ func (j *JSONStore) SaveTask(t *Task) error {
 
 	return nil
 }
+
+func (j *JSONStore) GetTask(id string) (*Task, error) {
+	j.taskLock.RLock()
+	defer j.taskLock.RUnlock()
+
+	task, present := j.Tasks[id]
+	if !present {
+		return nil, NoSuchTask
+	}
+
+	return task, nil
+}

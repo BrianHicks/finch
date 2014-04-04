@@ -36,7 +36,7 @@ func TestJSONStoreCommit(t *testing.T) {
 func TestJSONStoreSaveTask(t *testing.T) {
 	t.Parallel()
 
-	j, err := NewJSONStore("save.json")
+	j, err := NewJSONStore("savetask.json")
 	assert.Nil(t, err)
 	task := Task{}
 
@@ -46,6 +46,27 @@ func TestJSONStoreSaveTask(t *testing.T) {
 
 	task2 := j.Tasks[task.ID]
 	assert.Equal(t, task.ID, task2.ID)
+}
+
+func TestJSONStoreGetTask(t *testing.T) {
+	t.Parallel()
+
+	j, err := NewJSONStore("gettask.json")
+	assert.Nil(t, err)
+
+	task := &Task{ID: "foo"}
+	j.Tasks[task.ID] = task
+
+	// a task that exists
+	task2, err := j.GetTask(task.ID)
+	assert.Nil(t, err)
+	assert.Equal(t, task.ID, task2.ID)
+
+	// a task that doesn't exist
+	task3, err := j.GetTask("bar")
+	assert.Equal(t, err, NoSuchTask)
+	assert.Nil(t, task3)
+
 }
 
 func TestJSONStoreImplements(t *testing.T) {

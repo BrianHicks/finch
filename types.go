@@ -1,6 +1,13 @@
 package main
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+var (
+	NoSuchTask = errors.New("no such task")
+)
 
 type Storage interface {
 	NextID() uint
@@ -19,7 +26,7 @@ type TaskStore interface {
 	Storage
 
 	SaveTask(*Task) error
-	GetTask(int) (*Task, error)
+	GetTask(string) (*Task, error)
 	AllTasks() ([]*Task, error)
 	FilterTasks(func(*Task) bool) ([]*Task, error)
 }
