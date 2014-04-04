@@ -14,6 +14,7 @@ type Task struct {
 	Active   time.Time
 	Done     bool
 	Selected bool
+	Repeat   time.Duration
 }
 
 func (t *Task) String() string {
@@ -25,6 +26,15 @@ func (t *Task) String() string {
 	}
 
 	return s.String()
+}
+
+func (t *Task) MarkDone() {
+	t.Selected = false
+	if t.Repeat == 0 {
+		t.Done = true
+	} else {
+		t.Active = time.Now().Add(t.Repeat)
+	}
 }
 
 type ByActive []*Task

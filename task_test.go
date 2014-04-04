@@ -51,3 +51,24 @@ func TestByActive(t *testing.T) {
 		[]*Task{past, present, future},
 	)
 }
+
+func TestTaskMarkDone(t *testing.T) {
+	t.Parallel()
+
+	// task with no Repeat
+	task := Task{Selected: true}
+	assert.False(t, task.Done)
+	assert.True(t, task.Selected)
+
+	task.MarkDone()
+	assert.True(t, task.Done)
+	assert.False(t, task.Selected)
+
+	// task with a Repeat
+	now := time.Now()
+	task = Task{Selected: true, Repeat: time.Second}
+	task.MarkDone()
+
+	assert.False(t, task.Done)
+	assert.True(t, task.Active.After(now))
+}
