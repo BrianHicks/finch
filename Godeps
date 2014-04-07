@@ -1,38 +1,14 @@
 {
 	"ImportPath": "github.com/BrianHicks/finch",
-	"GoVersion": "go1.2",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.2.1",
 	"Deps": [
 		{
-			"ImportPath": "code.google.com/p/go-commander",
-			"Rev": "df033a4b379cd723ef7408b881c1e092cd943831"
-		},
-		{
-			"ImportPath": "code.google.com/p/snappy-go/snappy",
-			"Comment": "null-15",
-			"Rev": "12e4b4183793ac4b061921e7980845e750679fd0"
+			"ImportPath": "github.com/cryptix/goremutake",
+			"Rev": "02bc53ce351f8da6df64706d56d3a1d61350cc9e"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
 			"Rev": "9cc77fa25329013ce07362c7742952ff887361f2"
-		},
-		{
-			"ImportPath": "github.com/stretchr/testify/suite",
-			"Rev": "9cc77fa25329013ce07362c7742952ff887361f2"
-		},
-		{
-			"ImportPath": "github.com/syndtr/goleveldb/leveldb",
-			"Rev": "2b612e70674952c4aa0fb50e7f13ace3dc04f65b"
-		},
-		{
-			"ImportPath": "github.com/vmihailenco/bufio",
-			"Rev": "9bd8506288d01c5dfad4aac1ed786aae3e716986"
-		},
-		{
-			"ImportPath": "github.com/vmihailenco/msgpack",
-			"Rev": "2f06bb6e77fac9cfcfbbe18a6d5cfadce816c5ec"
 		}
 	]
 }
