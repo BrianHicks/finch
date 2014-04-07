@@ -19,21 +19,22 @@ func setup(t *testing.T, name string) TaskCoordinator {
 func TestTaskCoordinatorAdd(t *testing.T) {
 	tc := setup(t, "tcadd.json")
 
-	task, err := tc.Add("test")
-	assert.Nil(t, err)
+	task := tc.Add("test")
+	tc.Save(task)
+
 	assert.Equal(t, task.Desc, "test")
 }
 
 func TestTaskCoordinatorDelay(t *testing.T) {
 	tc := setup(t, "tcdelay.json")
 
-	task, err := tc.Add("test")
-	assert.Nil(t, err)
+	task := tc.Add("test")
+	tc.Save(task)
 
 	now := task.Active.Add(time.Second)
 
 	// no ID
-	err = tc.Delay("", now)
+	err := tc.Delay("", now)
 	assert.Equal(t, err, NoSuchTask)
 
 	// with ID
@@ -47,11 +48,11 @@ func TestTaskCoordinatorDelay(t *testing.T) {
 func TestTaskCoordinatorSelect(t *testing.T) {
 	tc := setup(t, "tcselect.json")
 
-	task, err := tc.Add("test")
-	assert.Nil(t, err)
+	task := tc.Add("test")
+	tc.Save(task)
 
 	// no ID
-	err = tc.Select("")
+	err := tc.Select("")
 	assert.Equal(t, err, NoSuchTask)
 
 	// with ID
@@ -63,11 +64,11 @@ func TestTaskCoordinatorSelect(t *testing.T) {
 func TestTaskCoordinatorMarkDone(t *testing.T) {
 	tc := setup(t, "tcmarkdone.json")
 
-	task, err := tc.Add("test")
-	assert.Nil(t, err)
+	task := tc.Add("test")
+	tc.Save(task)
 
 	// no ID
-	err = tc.MarkDone("")
+	err := tc.MarkDone("")
 	assert.Equal(t, err, NoSuchTask)
 
 	// with ID
@@ -85,8 +86,8 @@ func TestTaskCoordinatorSelected(t *testing.T) {
 	assert.Equal(t, len(tasks), 0)
 
 	// some selected tasks returns those
-	task, err := tc.Add("test")
-	assert.Nil(t, err)
+	task := tc.Add("test")
+	tc.Save(task)
 
 	task.Selected = true
 
@@ -104,9 +105,9 @@ func TestTaskCoordinatorNextSelected(t *testing.T) {
 	assert.Nil(t, notask)
 
 	// some selected tasks returns that one
-	task, err := tc.Add("test")
-	assert.Nil(t, err)
+	task := tc.Add("test")
 	task.Selected = true
+	tc.Save(task)
 
 	task2, err := tc.NextSelected()
 	assert.Nil(t, err)
@@ -122,16 +123,16 @@ func TestTaskCoordinatorAvailable(t *testing.T) {
 	assert.Equal(t, len(tasks), 0)
 
 	// some tasks
-	done, err := tc.Add("done")
-	assert.Nil(t, err)
+	done := tc.Add("done")
 	done.Done = true
+	tc.Save(done)
 
-	future, err := tc.Add("future")
-	assert.Nil(t, err)
+	future := tc.Add("future")
 	future.Active = time.Now().Add(time.Second * 30)
+	tc.Save(future)
 
-	pending, err := tc.Add("pending")
-	assert.Nil(t, err)
+	pending := tc.Add("pending")
+	tc.Save(pending)
 
 	tasks, err = tc.Available()
 	assert.Nil(t, err)

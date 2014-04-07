@@ -9,14 +9,13 @@ type TaskCoordinator struct {
 	storage TaskStore
 }
 
-func (tc *TaskCoordinator) Add(desc string) (*Task, error) {
+func (tc *TaskCoordinator) Add(desc string) *Task {
 	t := &Task{
 		Desc:   desc,
 		Active: time.Now(),
 	}
 
-	err := tc.storage.SaveTask(t)
-	return t, err
+	return t
 }
 
 func (tc *TaskCoordinator) Delay(id string, until time.Time) error {
@@ -79,6 +78,17 @@ func (tc *TaskCoordinator) MarkDone(ids ...string) error {
 	err := tc.storage.SaveTask(tasks...)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (tc *TaskCoordinator) Save(tasks ...*Task) error {
+	for _, t := range tasks {
+		err := tc.storage.SaveTask(t)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
