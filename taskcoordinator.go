@@ -114,7 +114,7 @@ func (tc *TaskCoordinator) Selected() ([]*Task, error) {
 		return tasks, NoSuchTask
 	}
 
-	sort.Sort(ByActive(tasks))
+	sort.Sort(sort.Reverse(ByActive(tasks)))
 
 	return tasks, err
 }
