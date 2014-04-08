@@ -9,6 +9,10 @@ type TaskCoordinator struct {
 	storage TaskStore
 }
 
+func (tc *TaskCoordinator) Close() error {
+	return tc.storage.Commit()
+}
+
 func (tc *TaskCoordinator) Add(desc string) *Task {
 	t := &Task{
 		Desc:   desc,
@@ -18,6 +22,10 @@ func (tc *TaskCoordinator) Add(desc string) *Task {
 	return t
 }
 
+func (tc *TaskCoordinator) Get(id string) (*Task, error) {
+	return tc.storage.GetTask(id)
+}
+
 func (tc *TaskCoordinator) Delay(id string, until time.Time) error {
 	t, err := tc.storage.GetTask(id)
 	if err != nil {
@@ -25,6 +33,7 @@ func (tc *TaskCoordinator) Delay(id string, until time.Time) error {
 	}
 
 	t.Active = until
+	t.Selected = false
 	err = tc.storage.SaveTask(t)
 	if err != nil {
 		return err

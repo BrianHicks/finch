@@ -12,7 +12,7 @@ type Storage interface {
 	Commit() error
 }
 
-type TaskStore interface {
+type TaskStorage interface {
 	SaveTask(...*Task) error
 	GetTask(string) (*Task, error)
 	DeleteTask(...string) error
@@ -24,9 +24,14 @@ type MetaStore interface {
 	GetMeta(string) (string, error)
 }
 
+type TaskStore interface {
+	Storage
+	TaskStorage
+}
+
 type MetaTaskStore interface {
 	Storage
 
-	TaskStore
+	TaskStorage
 	MetaStore
 }
