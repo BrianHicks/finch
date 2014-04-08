@@ -89,6 +89,26 @@ var (
 			},
 		},
 		{
+			Name:      "task-next",
+			ShortName: "next",
+			Usage:     "see the next selected task (selected, but only 1)",
+			Action: func(c *cli.Context) {
+				coord, err := taskCoordinatorFromContext(c)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error opening tasks: %s\n", err.Error())
+					return
+				}
+
+				task, err := coord.NextSelected()
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error reading tasks: %s\n", err.Error())
+					return
+				}
+
+				fmt.Println(task)
+			},
+		},
+		{
 			Name:      "task-select",
 			ShortName: "select",
 			Usage:     "select tasks",
