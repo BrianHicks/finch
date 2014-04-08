@@ -271,7 +271,7 @@ var (
 func main() {
 	app := cli.NewApp()
 	app.Usage = "command line task management"
-	app.Version = "0.0.1"
+	app.Version = "0.2.0"
 	app.Commands = commands
 	app.Flags = flags
 
