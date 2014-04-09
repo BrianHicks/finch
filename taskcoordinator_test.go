@@ -35,7 +35,7 @@ func TestTaskCoordinatorDelay(t *testing.T) {
 
 	// no ID
 	err := tc.Delay("", now)
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 
 	// with ID
 	assert.NotEqual(t, task.Active, now)
@@ -53,7 +53,7 @@ func TestTaskCoordinatorSelect(t *testing.T) {
 
 	// no ID
 	err := tc.Select("")
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 
 	// with ID
 	err = tc.Select(task.ID)
@@ -69,7 +69,7 @@ func TestTaskCoordinatorMarkDone(t *testing.T) {
 
 	// no ID
 	err := tc.MarkDone("")
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 
 	// with ID
 	err = tc.MarkDone(task.ID)
@@ -82,7 +82,7 @@ func TestTaskCoordinatorSelected(t *testing.T) {
 
 	// no tasks gets an error
 	tasks, err := tc.Selected()
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 	assert.Equal(t, len(tasks), 0)
 
 	// some selected tasks returns those
@@ -101,7 +101,7 @@ func TestTaskCoordinatorNextSelected(t *testing.T) {
 
 	// no tasks gets an error
 	notask, err := tc.NextSelected()
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 	assert.Nil(t, notask)
 
 	// some selected tasks returns that one
@@ -119,7 +119,7 @@ func TestTaskCoordinatorAvailable(t *testing.T) {
 
 	// no available tasks should return an error
 	tasks, err := tc.Available()
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 	assert.Equal(t, len(tasks), 0)
 
 	// some tasks

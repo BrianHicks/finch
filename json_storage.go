@@ -10,8 +10,9 @@ import (
 	"github.com/cryptix/goremutake"
 )
 
-var ErrNoSuch = errors.New("no such file or directory")
+var errNoSuch = errors.New("no such file or directory")
 
+// JSONStore is a Storage implementation on a disk-backed JSON file
 type JSONStore struct {
 	filename string
 
@@ -24,6 +25,7 @@ type JSONStore struct {
 	metaLock *sync.RWMutex
 }
 
+// NewJSONStore properly initializes a JSONStore
 func NewJSONStore(filename string) (*JSONStore, error) {
 	store := &JSONStore{
 		filename: filename,
@@ -34,7 +36,7 @@ func NewJSONStore(filename string) (*JSONStore, error) {
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
 		if perr, ok := err.(*os.PathError); ok {
-			if perr.Err.Error() == ErrNoSuch.Error() {
+			if perr.Err.Error() == errNoSuch.Error() {
 				store.Tasks = map[string]*Task{}
 				store.Meta = map[string]string{}
 				return store, nil
@@ -51,11 +53,13 @@ func NewJSONStore(filename string) (*JSONStore, error) {
 	return store, nil
 }
 
+// NextID gets the next ID in sequence for the JSON store
 func (j *JSONStore) NextID() uint {
-	j.CurID += 1
+	j.CurID++
 	return j.CurID
 }
 
+// Commit writes this data to the disk location for which it is configured.
 func (j *JSONStore) Commit() error {
 	j.taskLock.Lock()
 	defer j.taskLock.Unlock()
@@ -73,6 +77,8 @@ func (j *JSONStore) Commit() error {
 	return nil
 }
 
+// SaveTask saves a task (or tasks) to the store and returns the first error
+// encountered. It does not commit to disk, use `Commit` to do that.
 func (j *JSONStore) SaveTask(ts ...*Task) error {
 	j.taskLock.Lock()
 	defer j.taskLock.Unlock()
@@ -89,18 +95,21 @@ func (j *JSONStore) SaveTask(ts ...*Task) error {
 	return nil
 }
 
+// GetTask returns the task for an ID or ErrNoSuchTask
 func (j *JSONStore) GetTask(id string) (*Task, error) {
 	j.taskLock.RLock()
 	defer j.taskLock.RUnlock()
 
 	task, present := j.Tasks[id]
 	if !present {
-		return nil, NoSuchTask
+		return nil, ErrNoSuchTask
 	}
 
 	return task, nil
 }
 
+// DeleteTask deletes a task (or tasks.) It will return an error if any of the
+// provided IDs does not exist.
 func (j *JSONStore) DeleteTask(ids ...string) error {
 	// make sure we have all those tasks before we delete them
 	j.taskLock.Lock()
@@ -108,7 +117,7 @@ func (j *JSONStore) DeleteTask(ids ...string) error {
 
 	for _, id := range ids {
 		if _, ok := j.Tasks[id]; !ok {
-			return NoSuchTask
+			return ErrNoSuchTask
 		}
 	}
 
@@ -120,6 +129,7 @@ func (j *JSONStore) DeleteTask(ids ...string) error {
 	return nil
 }
 
+// FilterTasks taskes a predicate to filter tasks against
 func (j *JSONStore) FilterTasks(pred func(*Task) bool) ([]*Task, error) {
 	tasks := []*Task{}
 
@@ -133,6 +143,7 @@ func (j *JSONStore) FilterTasks(pred func(*Task) bool) ([]*Task, error) {
 	return tasks, nil
 }
 
+// SetMeta sets a single meta K/V pair
 func (j *JSONStore) SetMeta(k, v string) error {
 	j.metaLock.Lock()
 	defer j.metaLock.Unlock()
@@ -141,13 +152,14 @@ func (j *JSONStore) SetMeta(k, v string) error {
 	return nil
 }
 
+// GetMeta gets the value of a pair or returns ErrNoSuchKey
 func (j *JSONStore) GetMeta(k string) (string, error) {
 	j.metaLock.RLock()
 	defer j.metaLock.RUnlock()
 
 	v, ok := j.Meta[k]
 	if !ok {
-		return v, NoSuchKey
+		return v, ErrNoSuchKey
 	}
 
 	return v, nil

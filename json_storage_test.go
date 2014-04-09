@@ -64,7 +64,7 @@ func TestJSONStoreGetTask(t *testing.T) {
 
 	// a task that doesn't exist
 	task3, err := j.GetTask("bar")
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 	assert.Nil(t, task3)
 }
 
@@ -113,7 +113,7 @@ func TestJSONStoreDeleteTask(t *testing.T) {
 
 	// deleting none is an error
 	err = j.DeleteTask("")
-	assert.Equal(t, err, NoSuchTask)
+	assert.Equal(t, err, ErrNoSuchTask)
 
 	// deleting one should work
 	err = j.DeleteTask(task.ID)
@@ -152,7 +152,7 @@ func TestJSONStoreGetMeta(t *testing.T) {
 
 	// get a value that doesn't exist
 	_, err = j.GetMeta("whatever")
-	assert.Equal(t, err, NoSuchKey)
+	assert.Equal(t, err, ErrNoSuchKey)
 }
 
 func TestJSONStoreImplements(t *testing.T) {

@@ -8,6 +8,8 @@ import (
 
 var taskTmpl = template.Must(template.New("task").Parse(`{{.ID}}: {{.Desc}}{{if .Selected}} (*){{end}}{{if .Done}} (done){{end}}`))
 
+// Task is the basic unit of work in Finch. It coordinates what you should be
+// doing!
 type Task struct {
 	ID       string
 	Desc     string
@@ -17,6 +19,8 @@ type Task struct {
 	Repeat   time.Duration
 }
 
+// String is implemented to render a template. It will panic if that template
+// does not render properly.
 func (t *Task) String() string {
 	var s bytes.Buffer
 
@@ -28,6 +32,8 @@ func (t *Task) String() string {
 	return s.String()
 }
 
+// MarkDone marks a task done. If it is set to repeat, the task will repeat.
+// TODO: make repeat not suck, count down, expose it, etc.
 func (t *Task) MarkDone() {
 	t.Selected = false
 	if t.Repeat == 0 {
@@ -37,6 +43,7 @@ func (t *Task) MarkDone() {
 	}
 }
 
+// ByActive sorts Tasks by the time they are active
 type ByActive []*Task
 
 func (a ByActive) Len() int           { return len(a) }
