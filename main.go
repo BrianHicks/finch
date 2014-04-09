@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	VERSION  = "0.2.0"
 	commands = []cli.Command{
 		{
 			Name:      "task-add",
@@ -271,7 +272,7 @@ var (
 func main() {
 	app := cli.NewApp()
 	app.Usage = "command line task management"
-	app.Version = "0.2.0"
+	app.Version = VERSION
 	app.Commands = commands
 	app.Flags = flags
 
