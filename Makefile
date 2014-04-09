@@ -1,6 +1,4 @@
-.PHONY: all test deps clean install
-
-all: finch_darwin finch_linux finch_windows
+.PHONY:  test deps install xc relase
 
 test: deps
 	godep go test -parallel=8 -v ./...
@@ -12,14 +10,9 @@ deps:
 	go get -v github.com/kr/godep github.com/golang/lint/golint
 	godep restore
 
-clean:
-	git clean -fx
+xc:
+	go get -v github.com/laher/goxc
+	goxc -d $(shell pwd)/download-page -pv=$(shell grep -oe '\d\+\.\d\+\.\d\+' main.go | head -n 1) validate compile package
 
-finch_darwin: clean deps
-	GOOS=darwin godep go build -o finch_darwin ./finch
-
-finch_linux: clean deps
-	GOOS=linux godep go build -o finch_linux ./finch
-
-finch_windows: clean deps
-	GOOS=linux godep go build -o finch_windows ./finch
+release: xc
+	goxc -d $(shell pwd)/download-page -pv=$(shell grep -oe '\d\+\.\d\+\.\d\+' main.go | head -n 1) bintray

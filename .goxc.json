@@ -1,0 +1,11 @@
+{
+    "ConfigVersion": "0.9",
+    "TaskSettings": {
+        "bintray": {
+            "package": "finch",
+            "subject": "brianhicks",
+            "repository": "finch",
+            "downloadspage": "bintray.md"
+        }
+    }
+}
