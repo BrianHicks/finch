@@ -1,0 +1,81 @@
+#compdef finch
+# Z Shell completion for finch
+
+_finch() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    _arguments -C \
+        --location'[location to store data]' \
+        --version'[print the version]'\
+        --help'[show help]'\
+        '1:sub:->sub' \
+        '*::options:->options'
+
+    case $state in
+        sub)
+            local -a subs
+            subs=(
+                # task-related subcommands
+                'task-add:add a task to the list'
+                'add:add a task to the list'
+                'task-available:view available tasks'
+                'available:view available tasks'
+                'task-next:see the next selected task'
+                'next:see the next selected task'
+                'task-select:select tasks'
+                'select:select tasks'
+                'task-delay:delay a task'
+                'delay:delay a task'
+                'task-done:mark a task done'
+                'done:mark a task done'
+                'task-delete:delete a task'
+                'delete:delete a task'
+
+                # help
+                'help:shows a list of commands or help for one command'
+                'h:shows a list of commands or help for one command'
+            )
+
+            _describe -t commands 'finch' subs
+        ;;
+        options)
+            case $line[1] in
+                task-add|add) ;;
+                task-available|available) ;;
+                task-next|next) ;;
+                task-select|select) __available;;
+                task-delay|delay) __available \
+                    "--until:delay until this date (ISO-8601 period)" \
+                    "-u:delay until this date (ISO-8601 period)";;
+                task-done|done) __available;;
+                task-delete|delete) __available;;
+                help|h) _arguments -C '1:topic:(task-add task-available task-next task-select task-delay task-done task-delete help)';;
+            esac
+        ;;
+    esac
+}
+
+__cmd() {
+    finch $1 | sed -E 's/(.+): (.+)/\1:\2/' | sed 's/:/\\:/g' | sed 's/\\:/:/1'
+}
+
+__available() {
+    declare -a tasks extra
+
+    tasks=(${(f)"$(__cmd available)"})
+    extra=($@)
+    __finch_command_successful || return
+
+    _describe -t tasks 'tasks' tasks -- extra
+}
+
+__finch_command_successful() {
+	if (( ${#pipestatus:#0} > 0 )); then
+		_message 'finch returned an error'
+		return 1
+	fi
+	return 0
+}
+
+_finch "$@"
