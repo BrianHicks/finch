@@ -23,8 +23,12 @@ _finch() {
                 'available:view available tasks'
                 'task-next:see the next selected task'
                 'next:see the next selected task'
+                'task-details:see details about the next selected task (or arbitrary task)'
+                'details:see details about the next selected task (or arbitrary task)'
                 'task-select:select tasks'
                 'select:select tasks'
+                'task-annotate:add details to a task'
+                'annotate:add details to a task'
                 'task-delay:delay a task'
                 'delay:delay a task'
                 'task-done:mark a task done'
@@ -44,13 +48,14 @@ _finch() {
                 task-add|add) ;;
                 task-available|available) ;;
                 task-next|next) ;;
+                task-details|details) __available;;
                 task-select|select) __available;;
                 task-delay|delay) __available \
                     "--until:delay until this date (ISO-8601 period)" \
                     "-u:delay until this date (ISO-8601 period)";;
                 task-done|done) __available;;
                 task-delete|delete) __available;;
-                help|h) _arguments -C '1:topic:(task-add task-available task-next task-select task-delay task-done task-delete help)';;
+                help|h) _arguments -C '1:topic:(task-add task-available task-next task-details task-select task-annotate task-delay task-done task-delete help)';;
             esac
         ;;
     esac
