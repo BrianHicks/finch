@@ -110,6 +110,32 @@ var (
 			},
 		},
 		{
+			Name:      "task-details",
+			ShortName: "details",
+			Usage:     "see details about the next selected task (or arbitrary task)",
+			Action: func(c *cli.Context) {
+				coord, err := taskCoordinatorFromContext(c)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error opening tasks: %s\n", err.Error())
+					return
+				}
+
+				// get specified task or current task
+				var task *Task
+				if c.Args().Present() {
+					task, err = coord.Get(c.Args().First())
+				} else {
+					task, err = coord.NextSelected()
+				}
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error getting next task: %s\n", err.Error())
+					return
+				}
+
+				fmt.Fprint(os.Stdout, task.DetailString())
+			},
+		},
+		{
 			Name:      "task-select",
 			ShortName: "select",
 			Usage:     "select tasks",
@@ -131,6 +157,51 @@ var (
 				}
 
 				fmt.Fprintf(os.Stdout, "Saved: %s\n", strings.Join(c.Args(), ", "))
+			},
+		},
+		{
+			Name:      "task-annotate",
+			ShortName: "annotate",
+			Usage:     "add details to a task",
+			Action: func(c *cli.Context) {
+				coord, err := taskCoordinatorFromContext(c)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error opening tasks: %s\n", err.Error())
+					return
+				}
+
+				// get specified task or current task
+				task, err := coord.Get(c.Args().First())
+				if err != ErrNoSuchTask {
+					task, err = coord.NextSelected()
+
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "Error getting next task: %s\n", err.Error())
+						return
+					}
+
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "Error getting specified task: %s\n", err.Error())
+					return
+				}
+
+				task.Annotations = append(
+					task.Annotations,
+					strings.Join(c.Args().Tail(), " "),
+				)
+
+				err = coord.Save(task)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error saving task: %s\n", err.Error())
+					return
+				}
+
+				err = coord.Close()
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error saving tasks: %s\n", err.Error())
+				}
+
+				fmt.Fprintf(os.Stdout, "Annotated: %s\n", task)
 			},
 		},
 		{
