@@ -33,6 +33,24 @@ func TestTaskString(t *testing.T) {
 	)
 }
 
+func TestTaskDetailString(t *testing.T) {
+	t.Parallel()
+
+	// without annotations
+	assert.Equal(
+		t,
+		(&Task{ID: "foo", Desc: "test"}).DetailString(),
+		"foo: test\n\nAnnotations:\nNo annotations.\n",
+	)
+
+	// with annotations
+	assert.Equal(
+		t,
+		(&Task{ID: "foo", Desc: "test", Annotations: []string{"a", "b", "c"}}).DetailString(),
+		"foo: test\n\nAnnotations:\na\nb\nc\n",
+	)
+}
+
 func TestByActive(t *testing.T) {
 	t.Parallel()
 

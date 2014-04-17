@@ -8,15 +8,23 @@ import (
 
 var taskTmpl = template.Must(template.New("task").Parse(`{{.ID}}: {{.Desc}}{{if .Selected}} (*){{end}}{{if .Done}} (done){{end}}`))
 
+var taskDetailTmpl = template.Must(template.New("task-detail").Parse(`{{.String}}
+
+Annotations:
+{{range .Annotations}}{{.}}
+{{else}}No annotations.
+{{end}}`))
+
 // Task is the basic unit of work in Finch. It coordinates what you should be
 // doing!
 type Task struct {
-	ID       string
-	Desc     string
-	Active   time.Time
-	Done     bool
-	Selected bool
-	Repeat   time.Duration
+	ID          string
+	Desc        string
+	Active      time.Time
+	Done        bool
+	Selected    bool
+	Repeat      time.Duration
+	Annotations []string
 }
 
 // String is implemented to render a template. It will panic if that template
@@ -25,6 +33,18 @@ func (t *Task) String() string {
 	var s bytes.Buffer
 
 	err := taskTmpl.Execute(&s, t)
+	if err != nil {
+		panic(err)
+	}
+
+	return s.String()
+}
+
+// DetailString returns a more complete listing of a task.
+func (t *Task) DetailString() string {
+	var s bytes.Buffer
+
+	err := taskDetailTmpl.Execute(&s, t)
 	if err != nil {
 		panic(err)
 	}
